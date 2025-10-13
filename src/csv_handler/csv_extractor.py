@@ -6,12 +6,14 @@ Its job is to extract the relevant information from a data sample imported in a 
 
 # INCLUDE LIBRARIES
 import csv
+import os
 
 # DEFINE USEFUL FUNCTIONS
 def load_data(file_name):
     data_list = [] # data list that will contain CSV values
     with open(file_name, newline='') as csv_file:
         reader = csv.reader(csv_file) # create CSV reader object
+        reader.__next__() # skip the header row (1st row of excel file)
         for row in reader: # iterate through CSV file row by row
             data_list.append(row) # add each row to the data list
     return data_list
@@ -49,7 +51,17 @@ def sort_data(raw_data_list):
 if __name__ == '__main__':  # this part will only run when the script is called manually in terminal
 
     try:
-        pass
+        file_path = "../../data_samples/"
+        csv_file_name = os.path.join(file_path, "GPS_Sample_downsampled.csv")
+        data = load_data(csv_file_name)
+        for row in data: # loading data works perfectly !
+            # print(row)
+            pass
+        time_list, lat_list, lon_list, speed_list, Hacc_list, Hdop_list, QoS_list, sat_list,\
+        iai_list, HR_list, \
+        Acc_X_list, Acc_Y_list, Acc_Z_list, Gyr_X_list, Gyr_Y_list, Gyr_Z_list = sort_data(data)
+        # testing individual sorted list
+        print (time_list)
 
     finally:
-        pass
+        print("PROGRAM ENDED SUCCESSFULLY")
