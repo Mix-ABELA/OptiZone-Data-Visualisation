@@ -7,7 +7,6 @@ parameters set in the .ini config file and load into the python program
 
 # INCLUDE LIBRARIES
 import configparser
-import os
 
 # DEFINE USEFUL FUNCTIONS
 class config_params_handler:
@@ -33,6 +32,7 @@ class config_params_handler:
 if __name__ == '__main__':  # this part will only run when the script is called manually in terminal
 
     try:
+        import os
         file_path = "../"
         config_file_name = os.path.join(file_path, "config_params.ini")
 
