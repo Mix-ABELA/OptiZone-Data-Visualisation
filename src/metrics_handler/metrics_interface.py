@@ -26,8 +26,8 @@ class workload_metrics_handler:
     def _create_results_structure(self): # create namedtuple (lightweight structure object) to store result metrics computation
         self.tuple_result_metrics = namedtuple('result_metrics', ['total_dist', 'inst_speed', \
                                         'avg_speed', 'max_speed', 'inst_pace', 'avg_pace', \
-                                        'max_pace', 'moving_time', 'split_pace', 'best_segment', \
-                                        'speed_zones'])
+                                        'max_pace', 'total_time','moving_time', 'split_pace', \
+                                        'best_segment', 'speed_zones'])
     
     def compute_GPS_metrics(self): # compute necessary GPS metrics (Basic Movement + Segmented Performance)
         # compute total distance in Km
@@ -35,7 +35,7 @@ class workload_metrics_handler:
         # compute for Speed & Pace: instantaneous, average and max
         inst_speed, avg_speed, max_speed, inst_pace, avg_pace, max_pace = self._calculator.speed_pace()
         # compute activity's moving time in min
-        moving_time = self._calculator.moving_time()
+        moving_time, total_time = self._calculator.moving_time()
         # compute split paces (per Km)
         split_pace = self._calculator.split_pace()
         # compute best segment time (over split paces)
@@ -44,8 +44,8 @@ class workload_metrics_handler:
         speed_zones = self._calculator.speed_zones()
         # SEND the results with namedtuple data structure
         self._gps_result_metrics = self.tuple_result_metrics(total_dist, inst_speed, avg_speed, \
-                                            max_speed, inst_pace, avg_pace, max_pace, moving_time, \
-                                            split_pace, best_segment, speed_zones)
+                                            max_speed, inst_pace, avg_pace, max_pace, total_time, \
+                                            moving_time, split_pace, best_segment, speed_zones)
         print("> GPS workload metrics computed successfully !")
     
     def get_dataset(self): # getter that returns the dataset list

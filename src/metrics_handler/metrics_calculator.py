@@ -81,7 +81,7 @@ class workload_metrics_calculator:
         average_pace = self.total_time / self.total_dist # in min/km
         # compute MAX speed & pace
         max_speed = self._find_max_value(self.inst_speed) * 3.6 # in km/h
-        max_pace = self._find_max_value(self.inst_pace)
+        max_pace = self._find_min_value(self.inst_pace)
         return self.inst_speed, round(average_speed, 2), round(max_speed, 2), self.inst_pace, \
                 round(average_pace, 2), round(max_pace, 2)
 
@@ -121,6 +121,20 @@ class workload_metrics_calculator:
             iteration += 1
         return max_value
     
+    def _find_min_value(self, list_value): # find MIN (EXCEPT 0.0) value among provided list
+        iteration = 0
+        for element in list_value: # find MIN speed
+            if iteration > 0: # skip first step
+                curr_value = element
+                if (curr_value <= min_value) and (curr_value != 0.0): # case: found new min value
+                    min_value = curr_value
+                elif min_value == 0.0: # case: first element was 0.0
+                    min_value = curr_value
+            else: # catch first value
+                min_value = element
+            iteration += 1
+        return min_value
+    
     def moving_time(self): # METRIC: determine the moving time of the activity
         stopped_time_threshold = 0.9 # in m/s
         stopped_time = 0.0 # in min
@@ -131,7 +145,7 @@ class workload_metrics_calculator:
             iteration += 1
         stopped_time = stopped_time / 60 # in min
         self.mov_time = self.total_time - stopped_time # in min
-        return self.mov_time
+        return self.mov_time, self.total_time
     ### END: BASIC MOVEMENT METRICS FUNCTIONS ###
 
     ### SEGMENTED PERFORMANCE METRICS FUNCTIONS ###
@@ -184,6 +198,7 @@ class workload_metrics_calculator:
             iteration += 1
         for index in range(0, len(time_spent_zones)): # iterate & get % of speed zones
             time_spent_zones[index] = ((time_spent_zones[index] / 60) / self.total_time) * 100 # in percentage of total time
+            time_spent_zones[index] = round(time_spent_zones[index], 2) # round % to 2 decimals
         return time_spent_zones
     ### END: SEGMENTED PERFORMANCE METRICS FUNCTIONS ###
 
