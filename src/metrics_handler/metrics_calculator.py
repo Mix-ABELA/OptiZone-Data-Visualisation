@@ -17,9 +17,9 @@ class workload_metrics_calculator:
             self._dataset = dataset # load processed data (named tuple structure) into class object
             self._define_baseline_instances() # create required instances for metrics computation
         except:
-            print("Failed to create metrics calculator... TRY AGAIN!")
+            print("- Failed to create metrics calculator... TRY AGAIN!")
             exit(0)
-        print("Workload Metrics Calculator sub-class created successfully!")
+        print("+ Workload Metrics Calculator sub-class created successfully!")
     
     def _define_baseline_instances(self): # create lists useful for metrics computation
         self.dx = [] # list of small distance changes in meters
@@ -70,9 +70,12 @@ class workload_metrics_calculator:
     def speed_pace(self): # METRIC: compute instantaneous(m/s), average(km/h) & max speed/pace (min/km)
         self._compute_dt_conc() # fill the dt_conc time list for computation
         # compute instantaneous speed & pace
-        for index in range(0, self.dx): # iterate through all elements (dx & dt)
+        for index in range(0, len(self.dx)): # iterate through all elements (dx & dt)
             self.inst_speed.append(self.dx[index] / self.dt_conc[index]) # instantaneous speed m/s
-            self.inst_pace.append((self.dt_conc[index] / 60) / (self.dx[index] / 1000)) # instantaneous pace min/km
+            if self.dx[index] != 0: # check there was a movement
+                self.inst_pace.append((self.dt_conc[index] / 60) / (self.dx[index] / 1000)) # instantaneous pace min/km
+            else: # case: no movement -> pace = 0.0
+                self.inst_pace.append(0.0)
         # compute average speed & pace
         average_speed = self.total_dist / (self.total_time / 60) # in km/h
         average_pace = self.total_time / self.total_dist # in min/km
@@ -87,10 +90,10 @@ class workload_metrics_calculator:
         for element in self._dataset.conc_time_list:
             if iteration > 0: # skip the first step
                 curr_end = float(element[-1])
-                if curr_end != 0.0:
+                if curr_end >= prev_end:
                     self.dt_conc.append((curr_end - prev_end) / 10.0) # add to dt_conc list
-                else: # if new second reached (curr_end = 0)
-                    self.dt_conc.append((10.0 - prev_end) / 10.0) # add to dt_conc list
+                elif curr_end < prev_end: # case: skipped 0 when new second
+                    self.dt_conc.append((10 + curr_end - prev_end) / 10.0) # add to dt_conc list
                 prev_end = curr_end
             else: # catch the first time value
                 prev_end = float(element[-1])

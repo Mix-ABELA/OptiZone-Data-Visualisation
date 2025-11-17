@@ -18,9 +18,9 @@ class csv_data_handler:
             self._raw_data = csv_extractor.load_data(csv_file_path) # load data into extractor instance
             self.processed_data = [] # create empty list to store processed data 
         except:
-            print("Failed to load dataset file... TRY AGAIN!")
+            print("- Failed to load dataset file... TRY AGAIN!")
             exit(0)
-        print("CSV handler created & loaded data from file successfully!")
+        print("+ CSV handler created & loaded data from file successfully!")
     
     def extract_data(self): # extract dataset lists & process data values
         sorted_data_list = csv_extractor.sort_data(self._raw_data) # extract different lists from raw data

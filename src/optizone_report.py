@@ -14,7 +14,8 @@ try:
 
     # create workload metrics object instance & compute metrics
     Metrics_Handler = metrics_interface.workload_metrics_handler(csv_processed_data)
-    print(Metrics_Handler.get_result_metrics())
+    Metrics_Handler.compute_GPS_metrics()
+    print(Metrics_Handler.get_GPS_result_metrics().total_dist)
 
 except:
     print("found an error... stopping program")

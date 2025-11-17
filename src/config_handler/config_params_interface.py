@@ -16,9 +16,9 @@ class config_params_handler:
         try:
             self.handler.read(config_file_path) # read the config file provided
         except:
-            print("Failed to load config file... TRY AGAIN!")
+            print("- Failed to load config file... TRY AGAIN!")
             exit(0)
-        print("Config file handler created successfully!")
+        print("+ Config file handler created successfully!")
     
     def get_section_data(self, section_name=""): # provide specific section of data from list of parameters
         return self.handler[section_name]
