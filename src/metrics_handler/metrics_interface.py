@@ -7,7 +7,7 @@ necessary metrics based on data coming from a dataset.
 
 # INCLUDE LIBRARIES
 from collections import namedtuple
-from metrics_calculator import workload_metrics_calculator
+from metrics_handler.metrics_calculator import workload_metrics_calculator
 import configparser
 
 # DEFINE USEFUL FUNCTIONS
