@@ -18,21 +18,34 @@ class visualisation_plot_handler:
             self._gps_metrics = gps_metrics # load GPS metrics (named tuple structure)
             self._hr_metrics = hr_metrics # load HR metrics (named tuple structure)
             self._fitness_metrics = fitness_metrics # load Fitness metrics (named tuple structure)
-            self._create_plot_structure() # create visualisation plot structure
+            self._create_pandas_dataframe_structure() # create visualisation plot structure with Pandas
         except:
             print("- Failed to create visualisation plot handler... TRY AGAIN!")
             exit(0)
         print("+ Visualisation Plot handler created successfully!")
     
-    def _create_plot_structure(self): # create namedtuple (lightweight structure object) to store relevant plot data
-        # self.tuple_visual_plot = namedtuple('visual_plot', ['total_dist', 'inst_speed', \
-        #                                 'avg_speed', 'max_speed', 'inst_pace', 'avg_pace', \
-        #                                 'max_pace', 'total_time','moving_time', 'split_pace', \
-        #                                 'best_segment', 'speed_zones'])
-        pass
+    def _create_pandas_dataframe_structure(self): # setup the Pandas Dataframe struct (GPS - HR - Fitness)
+        self._create_gps_structure() # Pandas for GPS
+        self._create_hr_structure() # Pandas for HR
+        self._create_fitness_structure() # Pandas for Fitness Indicator
+
+    def _create_gps_structure(self): # create Pandas (Dataframe) for GPS metrics
+        structure_list = [self._gps_metrics.inst_speed, self._gps_metrics.inst_pace, \
+                          self._gps_metrics.split_pace, self._gps_metrics.speed_zones]
+        self._df_gps = pd.DataFrame(structure_list).transpose() # create Dataframe & transpose axes
+        self._df_gps.columns = ['inst_speed', 'inst_pace', 'split_pace', 'speed_zones']
+        print(self._df_gps)
+        print("done!")
     
-    def get_dataset(self): # getter that returns the dataset list
-        return self._dataset
+    def _create_hr_structure(self): # create Pandas (Dataframe) for HR metrics
+        print("done!")
+    
+    def _create_fitness_structure(self): # create Pandas (Dataframe) for Fitness metrics
+        print("done!")
+    
+    def show_plots(self): # display the visualisation plots of computed metrics
+        self._df_gps.plot()
+        plt.show()
 
 
 # INTERNAL CODE TESTING
