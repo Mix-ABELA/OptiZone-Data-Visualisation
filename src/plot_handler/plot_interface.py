@@ -12,9 +12,11 @@ import configparser
 # DEFINE USEFUL FUNCTIONS
 class visualisation_plot_handler:
 
-    def __init__(self, dataset): # class constructor
+    def __init__(self, gps_metrics=[], hr_metrics=[], fitness_metrics=[]): # class constructor
         try:
-            self._dataset = dataset # load processed data (named tuple structure) into class object
+            self._gps_metrics = gps_metrics # load GPS metrics (named tuple structure)
+            self._hr_metrics = hr_metrics # load HR metrics (named tuple structure)
+            self._fitness_metrics = fitness_metrics # load Fitness metrics (named tuple structure)
             self._create_plot_structure() # create visualisation plot structure
         except:
             print("- Failed to create visualisation plot handler... TRY AGAIN!")
