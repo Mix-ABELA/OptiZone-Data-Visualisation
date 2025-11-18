@@ -15,16 +15,18 @@ try:
     # create workload metrics object instance & compute metrics
     Metrics_Handler = metrics_interface.workload_metrics_handler(csv_processed_data)
     Metrics_Handler.compute_GPS_metrics()
-    print(Metrics_Handler.get_GPS_result_metrics().total_dist)
-    print(Metrics_Handler.get_GPS_result_metrics().total_time)
-    print(Metrics_Handler.get_GPS_result_metrics().moving_time)
-    print(Metrics_Handler.get_GPS_result_metrics().split_pace)
-    print(Metrics_Handler.get_GPS_result_metrics().best_segment)
-    print(Metrics_Handler.get_GPS_result_metrics().speed_zones)
-    print(Metrics_Handler.get_GPS_result_metrics().avg_speed)
-    print(Metrics_Handler.get_GPS_result_metrics().max_speed)
-    print(Metrics_Handler.get_GPS_result_metrics().avg_pace)
-    print(Metrics_Handler.get_GPS_result_metrics().max_pace)
+
+    # print computed metrics results
+    print("total distance = {}".format(Metrics_Handler.get_GPS_result_metrics().total_dist))
+    print("total distance = {}".format(Metrics_Handler.get_GPS_result_metrics().total_time))
+    print("total distance = {}".format(Metrics_Handler.get_GPS_result_metrics().moving_time))
+    print("total distance = {}".format(Metrics_Handler.get_GPS_result_metrics().split_pace))
+    print("total distance = {}".format(Metrics_Handler.get_GPS_result_metrics().best_segment))
+    print("total distance = {}".format(Metrics_Handler.get_GPS_result_metrics().speed_zones))
+    print("total distance = {}".format(Metrics_Handler.get_GPS_result_metrics().avg_speed))
+    print("total distance = {}".format(Metrics_Handler.get_GPS_result_metrics().max_speed))
+    print("total distance = {}".format(Metrics_Handler.get_GPS_result_metrics().avg_pace))
+    print("total distance = {}".format(Metrics_Handler.get_GPS_result_metrics().max_pace))
 
 except:
     print("found an error... stopping program")

@@ -6,7 +6,8 @@ Its job is to act as an interface (interaction with the module) and provide meth
 """
 
 # INCLUDE LIBRARIES
-from collections import namedtuple
+import pandas as pd
+import matplotlib.pyplot as plt
 import configparser
 
 # DEFINE USEFUL FUNCTIONS
@@ -24,10 +25,11 @@ class visualisation_plot_handler:
         print("+ Visualisation Plot handler created successfully!")
     
     def _create_plot_structure(self): # create namedtuple (lightweight structure object) to store relevant plot data
-        self.tuple_visual_plot = namedtuple('visual_plot', ['total_dist', 'inst_speed', \
-                                        'avg_speed', 'max_speed', 'inst_pace', 'avg_pace', \
-                                        'max_pace', 'total_time','moving_time', 'split_pace', \
-                                        'best_segment', 'speed_zones'])
+        # self.tuple_visual_plot = namedtuple('visual_plot', ['total_dist', 'inst_speed', \
+        #                                 'avg_speed', 'max_speed', 'inst_pace', 'avg_pace', \
+        #                                 'max_pace', 'total_time','moving_time', 'split_pace', \
+        #                                 'best_segment', 'speed_zones'])
+        pass
     
     def get_dataset(self): # getter that returns the dataset list
         return self._dataset
