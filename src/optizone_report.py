@@ -19,15 +19,15 @@ try:
 
     # print computed metrics results
     print("total distance = {}".format(Metrics_Handler.get_GPS_result_metrics().total_dist))
-    print("total distance = {}".format(Metrics_Handler.get_GPS_result_metrics().total_time))
-    print("total distance = {}".format(Metrics_Handler.get_GPS_result_metrics().moving_time))
-    print("total distance = {}".format(Metrics_Handler.get_GPS_result_metrics().split_pace))
-    print("total distance = {}".format(Metrics_Handler.get_GPS_result_metrics().best_segment))
-    print("total distance = {}".format(Metrics_Handler.get_GPS_result_metrics().speed_zones))
-    print("total distance = {}".format(Metrics_Handler.get_GPS_result_metrics().avg_speed))
-    print("total distance = {}".format(Metrics_Handler.get_GPS_result_metrics().max_speed))
-    print("total distance = {}".format(Metrics_Handler.get_GPS_result_metrics().avg_pace))
-    print("total distance = {}".format(Metrics_Handler.get_GPS_result_metrics().max_pace))
+    print("total time = {}".format(Metrics_Handler.get_GPS_result_metrics().total_time))
+    print("moving time = {}".format(Metrics_Handler.get_GPS_result_metrics().moving_time))
+    print("split pace = {}".format(Metrics_Handler.get_GPS_result_metrics().split_pace))
+    print("best segment = {}".format(Metrics_Handler.get_GPS_result_metrics().best_segment))
+    print("speed zones = {}".format(Metrics_Handler.get_GPS_result_metrics().speed_zones))
+    print("average speed = {}".format(Metrics_Handler.get_GPS_result_metrics().avg_speed))
+    print("max speed = {}".format(Metrics_Handler.get_GPS_result_metrics().max_speed))
+    print("average pace = {}".format(Metrics_Handler.get_GPS_result_metrics().avg_pace))
+    print("max pace = {}".format(Metrics_Handler.get_GPS_result_metrics().max_pace))
 
     # use visualisation plotter to look at the computed metrics
     Plotter = plot_interface.visualisation_plot_handler(Metrics_Handler.get_GPS_result_metrics())

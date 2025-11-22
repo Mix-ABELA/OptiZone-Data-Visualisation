@@ -35,16 +35,19 @@ class visualisation_plot_handler:
         self._df_gps = pd.DataFrame(structure_list).transpose() # create Dataframe & transpose axes
         self._df_gps.columns = ['inst_speed', 'inst_pace', 'split_pace', 'speed_zones']
         print(self._df_gps)
-        print("done!")
+        #print("done!")
     
     def _create_hr_structure(self): # create Pandas (Dataframe) for HR metrics
-        print("done!")
+        #print("done!")
+        pass
     
     def _create_fitness_structure(self): # create Pandas (Dataframe) for Fitness metrics
-        print("done!")
+        #print("done!")
+        pass
     
     def show_plots(self): # display the visualisation plots of computed metrics
-        self._df_gps.plot()
+        #self._df_gps.plot()
+        self._df_gps['inst_speed'].plot()
         plt.show()
 
 

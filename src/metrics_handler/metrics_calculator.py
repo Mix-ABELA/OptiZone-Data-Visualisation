@@ -30,6 +30,10 @@ class workload_metrics_calculator:
         self.inst_speed = [] # list of instantaneous speed in m/s
         self.mov_time = 0 # variable for total moving time of activity
         self.split_paces = [] # list of split pace (average pace per km) in min/km
+        self.avg_hr = 0 # variable for average heart rate in BPM
+        self.max_hr = 0 # variable for maximum heart rate in BPM
+        self.resting_hr = 60 # variable to store athlete's resting hear rate in BPM
+        self.athlete_age = 23 # varibale to store athlete's age in years
 
     ### BASIC MOVEMENT METRICS FUNCTIONS ###
     def total_distance(self): # METRIC: compute total distance in Km
@@ -201,6 +205,20 @@ class workload_metrics_calculator:
             time_spent_zones[index] = round(time_spent_zones[index], 2) # round % to 2 decimals
         return time_spent_zones
     ### END: SEGMENTED PERFORMANCE METRICS FUNCTIONS ###
+
+    ### CARDIOVASCULAR METRICS FUNCTIONS ###
+    def average_heart_rate(self): # METRIC: compute average heart rate of whole activity
+        self.avg_hr = self._compute_average(self._dataset.HR_list)
+        return self.avg_hr
+    
+    def max_heart_rate(self): # METRIC: compute maximum heart rate of whole activity
+        self.max_hr = self._find_max_value(self._dataset.HR_list)
+        return self.max_hr
+    
+    def reserve_heart_rate(self): # METRIC: compute heart rate reserve of athlete
+        reserve_hr = (220 - self.athlete_age) - self.resting_hr
+        return reserve_hr
+    ### END: CARDIOVASCULAR METRICS FUNCTIONS ###
 
 
 # INTERNAL CODE TESTING

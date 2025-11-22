@@ -24,10 +24,12 @@ class workload_metrics_handler:
         print("+ Workload Metrics handler created successfully!")
     
     def _create_results_structure(self): # create namedtuple (lightweight structure object) to store result metrics computation
-        self.tuple_result_metrics = namedtuple('result_metrics', ['total_dist', 'inst_speed', \
+        self.tuple_gps_result = namedtuple('gps_result_metrics', ['total_dist', 'inst_speed', \
                                         'avg_speed', 'max_speed', 'inst_pace', 'avg_pace', \
                                         'max_pace', 'total_time','moving_time', 'split_pace', \
                                         'best_segment', 'speed_zones'])
+        self.tuple_hr_result = namedtuple('hr_result_metrics', ['avg_hr', 'max_hr', \
+                                        'hr_reserve', 'hr_zones', 'trimp', 'intensity_dist'])
     
     def compute_GPS_metrics(self): # compute necessary GPS metrics (Basic Movement + Segmented Performance)
         # compute total distance in Km
@@ -43,10 +45,13 @@ class workload_metrics_handler:
         # compute % of time spent in speed zones (walking - jogging - running - sprinting - intense)
         speed_zones = self._calculator.speed_zones()
         # SEND the results with namedtuple data structure
-        self._gps_result_metrics = self.tuple_result_metrics(total_dist, inst_speed, avg_speed, \
+        self._gps_result_metrics = self.tuple_gps_result(total_dist, inst_speed, avg_speed, \
                                             max_speed, inst_pace, avg_pace, max_pace, total_time, \
                                             moving_time, split_pace, best_segment, speed_zones)
         print("> GPS workload metrics computed successfully !")
+    
+    def compute_HR_metrics(self): # compute necessary HR metrics (Cardiovascular Load)
+        pass
     
     def get_dataset(self): # getter that returns the dataset list
         return self._dataset
