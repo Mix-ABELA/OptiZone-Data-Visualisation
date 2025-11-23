@@ -28,6 +28,7 @@ class workload_metrics_calculator:
         self.total_time = 0 # variable for total time in min
         self.inst_pace = [] # list of instantaneous pace in min/km
         self.inst_speed = [] # list of instantaneous speed in m/s
+        self.avg_pace = 0 # variable for activity average pace in min/km
         self.mov_time = 0 # variable for total moving time of activity
         self.split_paces = [] # list of split pace (average pace per km) in min/km
         self.avg_hr = 0 # variable for average heart rate in BPM
@@ -83,6 +84,7 @@ class workload_metrics_calculator:
         # compute average speed & pace
         average_speed = self.total_dist / (self.total_time / 60) # in km/h
         average_pace = self.total_time / self.total_dist # in min/km
+        self.avg_pace = round(average_pace, 2) # save average pace for other calculations
         # compute MAX speed & pace
         max_speed = self._find_max_value(self.inst_speed) * 3.6 # in km/h
         max_pace = self._find_min_value(self.inst_pace)
@@ -149,7 +151,7 @@ class workload_metrics_calculator:
             iteration += 1
         stopped_time = stopped_time / 60 # in min
         self.mov_time = self.total_time - stopped_time # in min
-        return self.mov_time, self.total_time
+        return round(self.mov_time, 2), round(self.total_time, 2)
     ### END: BASIC MOVEMENT METRICS FUNCTIONS ###
 
     ### SEGMENTED PERFORMANCE METRICS FUNCTIONS ###
@@ -210,7 +212,7 @@ class workload_metrics_calculator:
     def average_heart_rate(self): # METRIC: compute average heart rate of whole activity
         self.avg_hr = self._compute_average(self._dataset.HR_list)
         self.avg_hr = round(self.avg_hr, 2) # round to 2 decimals
-        return self.avg_hr
+        return round(self.avg_hr) # return only integer
     
     def max_heart_rate(self): # METRIC: compute maximum recorded heart rate of whole activity
         self.max_hr = self._find_max_value(self._dataset.HR_list)
@@ -251,6 +253,19 @@ class workload_metrics_calculator:
         trimp = round(trimp, 2) # round to 2 decimals
         return trimp
     ### END: CARDIOVASCULAR METRICS FUNCTIONS ###
+
+    ### EFFICIENCY & FITNESS INDICATOR METRICS FUNCTIONS ###
+    def aerobic_efficiency(self): # METRIC: compute aerobic efficieny & running economy for activity
+        efficiency_factor = self.avg_pace / self.avg_hr # higher EF -> better perfomance
+        efficiency_factor = round(efficiency_factor, 3) # round to 2 decimals
+        return efficiency_factor
+    
+    def cardiac_cost(self): # METRIC: compute cardiac cost (HR per unit distance)
+        heartbeats_number = self.avg_hr * self.total_time
+        cardiac_cost = heartbeats_number / self.total_dist # in beats/km
+        cardiac_cost = round(cardiac_cost, 2) # round to 2 decimals
+        return cardiac_cost
+    ### END: EFFICIENCY & FITNESS INDICATOR METRICS FUNCTIONS ###
 
 
 # INTERNAL CODE TESTING

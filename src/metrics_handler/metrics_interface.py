@@ -30,9 +30,16 @@ class workload_metrics_handler:
                                         'best_segment', 'speed_zones'])
         self.tuple_hr_result = namedtuple('hr_result_metrics', ['avg_hr', 'max_hr', \
                                         'hr_reserve', 'hr_zones', 'trimp', 'intensity_dist'])
+        self.tuple_fit_result = namedtuple('fit_result_metrics', ['aerobic_eff', 'cardiac_cost'])
         self.computed_GPS = False # monitor if basic movement metrics have been computed
         self.computed_HR = False # monitor if cardiovascular metrics have been computed
         self.computed_Fitness = False # monitor if fitness indicator metrics have been computed
+    
+    def compute_GPS_HR_Fitness_metrics(self): # compute ALL metrics (GPS - HR - Fitness & Efficiency)
+        # Note: order of calling these functions matters...
+        self.compute_GPS_metrics()
+        self.compute_HR_metrics()
+        self.compute_Fitness_metrics()
     
     def compute_GPS_metrics(self): # compute necessary GPS metrics (Basic Movement + Segmented Performance)
         # compute total distance in Km
@@ -72,8 +79,23 @@ class workload_metrics_handler:
         # SEND the results with namedtuple data structure
         self._hr_result_metrics = self.tuple_hr_result(avg_hr, max_hr, reserve_hr, hr_zones, \
                                                        trimp, intensity_dist)
-        self.computed_HR = True # ALERT: GPS metrics computed
+        self.computed_HR = True # ALERT: HR metrics computed
         print("> HR workload metrics computed successfully !")
+    
+    def compute_Fitness_metrics(self): # compute Efficiency & Fitness indicators metrics
+        # compute aerobic efficiency factor
+        if self.computed_HR == False: # check if average HR is available
+            self._calculator.average_heart_rate()
+        if self.computed_GPS == False: # check if average Pace is available
+            self._calculator.total_distance()
+            self._calculator.speed_pace()
+        ef = self._calculator.aerobic_efficiency()
+        # compute cardiac cost
+        cardiac_cost = self._calculator.cardiac_cost()
+        # SEND the results with namedtuple data structure
+        self._fit_result_metrics = self.tuple_fit_result(ef, cardiac_cost)
+        self.computed_Fitness = True # ALERT: Efficiency metrics computed
+        print("> Fitness & Efficiency workload metrics computed successfully !")
     
     def get_dataset(self): # getter that returns the dataset list
         return self._dataset
@@ -90,11 +112,11 @@ class workload_metrics_handler:
         else:
             return self._hr_result_metrics
     
-    # def get_Fitness_result_metrics(self): # getter that returns the Fitness result metrics computed list
-    #     if self._fit_result_metrics == []: # check if list is empty (no computation made yet)
-    #         raise ValueError("no Fitness result metrics data list has been created yet...")
-    #     else:
-    #         return self._fit_result_metrics
+    def get_Fitness_result_metrics(self): # getter that returns the Fitness result metrics computed list
+        if self._fit_result_metrics == []: # check if list is empty (no computation made yet)
+            raise ValueError("no Fitness result metrics data list has been created yet...")
+        else:
+            return self._fit_result_metrics
 
 
 # INTERNAL CODE TESTING

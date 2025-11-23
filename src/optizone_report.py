@@ -15,8 +15,11 @@ try:
 
     # create workload metrics object instance & compute metrics
     Metrics_Handler = metrics_interface.workload_metrics_handler(csv_processed_data)
-    Metrics_Handler.compute_GPS_metrics()
-    Metrics_Handler.compute_HR_metrics()
+    Metrics_Handler.compute_GPS_HR_Fitness_metrics() # compute GPS - Heart Rate - Fitness metrics
+    # --- IF YOU WANT TO COMPUTE INDIVIDUAL METRICS -> USE ONE AT A TIME ONLY ! ---
+    # Metrics_Handler.compute_GPS_metrics() # to compute GPS metrics only
+    # Metrics_Handler.compute_HR_metrics() # to compute Hear Rate metrics only
+    # Metrics_Handler.compute_Fitness_metrics() # to compute Efficiency & Fitness metrics only
 
     # print computed metrics results
     print("total distance = {}".format(Metrics_Handler.get_GPS_result_metrics().total_dist))
@@ -30,12 +33,19 @@ try:
     print("average pace = {}".format(Metrics_Handler.get_GPS_result_metrics().avg_pace))
     print("max pace = {}".format(Metrics_Handler.get_GPS_result_metrics().max_pace))
 
+    print("----------------------")
+
     print("average HR = {}".format(Metrics_Handler.get_HR_result_metrics().avg_hr))
     print("max HR = {}".format(Metrics_Handler.get_HR_result_metrics().max_hr))
     print("reserve HR = {}".format(Metrics_Handler.get_HR_result_metrics().hr_reserve))
     print("zones time HR = {}".format(Metrics_Handler.get_HR_result_metrics().hr_zones))
     print("intensity dist HR = {}".format(Metrics_Handler.get_HR_result_metrics().intensity_dist))
     print("training impulse = {}".format(Metrics_Handler.get_HR_result_metrics().trimp))
+
+    print("----------------------")
+
+    print("aerobic efficiency = {}".format(Metrics_Handler.get_Fitness_result_metrics().aerobic_eff))
+    print("cardiac cost = {}".format(Metrics_Handler.get_Fitness_result_metrics().cardiac_cost))
 
     # use visualisation plotter to look at the computed metrics
     # Plotter = plot_interface.visualisation_plot_handler(Metrics_Handler.get_GPS_result_metrics())
@@ -44,4 +54,4 @@ try:
 except:
     print("found an error... stopping program")
 finally:
-    print("PROGRAM ENDED SUCCESSFULLY!")
+    print("!-- PROGRAM ENDED SUCCESSFULLY --!")
