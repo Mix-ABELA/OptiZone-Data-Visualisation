@@ -31,7 +31,7 @@ class workload_metrics_calculator:
         self.mov_time = 0 # variable for total moving time of activity
         self.split_paces = [] # list of split pace (average pace per km) in min/km
         self.avg_hr = 0 # variable for average heart rate in BPM
-        self.max_hr = 0 # variable for maximum heart rate in BPM
+        self.max_hr = 0 # variable for maximum recorded heart rate in BPM
         self.resting_hr = 60 # variable to store athlete's resting hear rate in BPM
         self.athlete_age = 23 # varibale to store athlete's age in years
 
@@ -209,15 +209,47 @@ class workload_metrics_calculator:
     ### CARDIOVASCULAR METRICS FUNCTIONS ###
     def average_heart_rate(self): # METRIC: compute average heart rate of whole activity
         self.avg_hr = self._compute_average(self._dataset.HR_list)
+        self.avg_hr = round(self.avg_hr, 2) # round to 2 decimals
         return self.avg_hr
     
-    def max_heart_rate(self): # METRIC: compute maximum heart rate of whole activity
+    def max_heart_rate(self): # METRIC: compute maximum recorded heart rate of whole activity
         self.max_hr = self._find_max_value(self._dataset.HR_list)
         return self.max_hr
     
     def reserve_heart_rate(self): # METRIC: compute heart rate reserve of athlete
         reserve_hr = (220 - self.athlete_age) - self.resting_hr
         return reserve_hr
+    
+    def zone_heart_rate(self): # METRIC: compute time spent in the 5 Heart Rate zones & proportions
+        time_spent_zones = [0.0, 0.0, 0.0, 0.0, 0.0] # store time of HR zones (Z1, Z2, Z3, Z4, Z5)
+        hr_max = 220 - self.athlete_age # to get HRmax
+        hr_data_list = self._dataset.HR_list # for compact reading in FOR loop
+        for index in range(0, len(self.dt_conc)): # iterate HR through time change index 
+            if hr_data_list[index] >= (0.5*hr_max) and hr_data_list[index] < (0.6*hr_max): # Zone 1 (50-60%)
+                time_spent_zones[0] += (self.dt_conc[index] / 60) # in minutes
+            elif hr_data_list[index] >= (0.6*hr_max) and hr_data_list[index] < (0.7*hr_max): # Zone 2 (60-70%)
+                time_spent_zones[1] += (self.dt_conc[index] / 60) # in minutes
+            elif hr_data_list[index] >= (0.7*hr_max) and hr_data_list[index] < (0.8*hr_max): # Zone 3 (70-80%)
+                time_spent_zones[2] += (self.dt_conc[index] / 60) # in minutes
+            elif hr_data_list[index] >= (0.8*hr_max) and hr_data_list[index] < (0.9*hr_max): # Zone 4 (80-90%)
+                time_spent_zones[3] += (self.dt_conc[index] / 60) # in minutes
+            elif hr_data_list[index] >= (0.9*hr_max) and hr_data_list[index] <= (hr_max): # Zone 5 (90-100%)
+                time_spent_zones[4] += (self.dt_conc[index] / 60) # in minutes
+        proportion_intensity = [] # HR-based intensity proportion in % of total activity time
+        for index in range(0, len(time_spent_zones)): # iterate through time of %HRmax
+            time_proportion = (time_spent_zones[index] / self.total_time) * 100 # time proportion (%)
+            time_proportion = round(time_proportion, 2) # round to 2 decimals for %
+            proportion_intensity.append(time_proportion) # add computed % to proportion list
+            time_spent_zones[index] = round(time_spent_zones[index], 2) # round to 2 decimals
+        return time_spent_zones, proportion_intensity
+    
+    def training_impulse(self): # METRIC: compute TRIMP (weighted measure of cardiovascular load)
+        hr_max = 220 - self.athlete_age # compute HRmax
+        HRR = (self.avg_hr - self.resting_hr) / (hr_max - self.resting_hr)
+        weight_factor = 0.64 * math.exp(1.67 * HRR) # weight factor for women (1.92 for men)
+        trimp = self.total_time * HRR * weight_factor # compute final training impulse
+        trimp = round(trimp, 2) # round to 2 decimals
+        return trimp
     ### END: CARDIOVASCULAR METRICS FUNCTIONS ###
 
 

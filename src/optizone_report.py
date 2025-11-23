@@ -16,6 +16,7 @@ try:
     # create workload metrics object instance & compute metrics
     Metrics_Handler = metrics_interface.workload_metrics_handler(csv_processed_data)
     Metrics_Handler.compute_GPS_metrics()
+    Metrics_Handler.compute_HR_metrics()
 
     # print computed metrics results
     print("total distance = {}".format(Metrics_Handler.get_GPS_result_metrics().total_dist))
@@ -29,9 +30,16 @@ try:
     print("average pace = {}".format(Metrics_Handler.get_GPS_result_metrics().avg_pace))
     print("max pace = {}".format(Metrics_Handler.get_GPS_result_metrics().max_pace))
 
+    print("average HR = {}".format(Metrics_Handler.get_HR_result_metrics().avg_hr))
+    print("max HR = {}".format(Metrics_Handler.get_HR_result_metrics().max_hr))
+    print("reserve HR = {}".format(Metrics_Handler.get_HR_result_metrics().hr_reserve))
+    print("zones time HR = {}".format(Metrics_Handler.get_HR_result_metrics().hr_zones))
+    print("intensity dist HR = {}".format(Metrics_Handler.get_HR_result_metrics().intensity_dist))
+    print("training impulse = {}".format(Metrics_Handler.get_HR_result_metrics().trimp))
+
     # use visualisation plotter to look at the computed metrics
-    Plotter = plot_interface.visualisation_plot_handler(Metrics_Handler.get_GPS_result_metrics())
-    Plotter.show_plots()
+    # Plotter = plot_interface.visualisation_plot_handler(Metrics_Handler.get_GPS_result_metrics())
+    # Plotter.show_plots()
 
 except:
     print("found an error... stopping program")

@@ -30,6 +30,9 @@ class workload_metrics_handler:
                                         'best_segment', 'speed_zones'])
         self.tuple_hr_result = namedtuple('hr_result_metrics', ['avg_hr', 'max_hr', \
                                         'hr_reserve', 'hr_zones', 'trimp', 'intensity_dist'])
+        self.computed_GPS = False # monitor if basic movement metrics have been computed
+        self.computed_HR = False # monitor if cardiovascular metrics have been computed
+        self.computed_Fitness = False # monitor if fitness indicator metrics have been computed
     
     def compute_GPS_metrics(self): # compute necessary GPS metrics (Basic Movement + Segmented Performance)
         # compute total distance in Km
@@ -48,10 +51,29 @@ class workload_metrics_handler:
         self._gps_result_metrics = self.tuple_gps_result(total_dist, inst_speed, avg_speed, \
                                             max_speed, inst_pace, avg_pace, max_pace, total_time, \
                                             moving_time, split_pace, best_segment, speed_zones)
+        self.computed_GPS = True # ALERT: GPS metrics computed
         print("> GPS workload metrics computed successfully !")
     
     def compute_HR_metrics(self): # compute necessary HR metrics (Cardiovascular Load)
-        pass
+        # compute average heart rate in BPM
+        avg_hr = self._calculator.average_heart_rate()
+        # compute maxmimum recorded heart rate in BPM
+        max_hr = self._calculator.max_heart_rate()
+        # compute reserver heart rate in BPM
+        reserve_hr = self._calculator.reserve_heart_rate()
+        # compute heart rate zones & proportional intensity distribution
+        if self.computed_GPS == True: # because: depends on conc time list
+            hr_zones, intensity_dist = self._calculator.zone_heart_rate()
+        else:
+            self._calculator._compute_dt_conc() # force calculation of conc time list
+            hr_zones, intensity_dist = self._calculator.zone_heart_rate()
+        # compute training impulse (weighted measure of cardiovascular load)
+        trimp = self._calculator.training_impulse()
+        # SEND the results with namedtuple data structure
+        self._hr_result_metrics = self.tuple_hr_result(avg_hr, max_hr, reserve_hr, hr_zones, \
+                                                       trimp, intensity_dist)
+        self.computed_HR = True # ALERT: GPS metrics computed
+        print("> HR workload metrics computed successfully !")
     
     def get_dataset(self): # getter that returns the dataset list
         return self._dataset
@@ -62,11 +84,11 @@ class workload_metrics_handler:
         else:
             return self._gps_result_metrics
     
-    # def get_HR_result_metrics(self): # getter that returns the HR result metrics computed list
-    #     if self._hr_result_metrics == []: # check if list is empty (no computation made yet)
-    #         raise ValueError("no HR result metrics data list has been created yet...")
-    #     else:
-    #         return self._hr_result_metrics
+    def get_HR_result_metrics(self): # getter that returns the HR result metrics computed list
+        if self._hr_result_metrics == []: # check if list is empty (no computation made yet)
+            raise ValueError("no HR result metrics data list has been created yet...")
+        else:
+            return self._hr_result_metrics
     
     # def get_Fitness_result_metrics(self): # getter that returns the Fitness result metrics computed list
     #     if self._fit_result_metrics == []: # check if list is empty (no computation made yet)
