@@ -8,6 +8,7 @@ Its job is to act as an interface (interaction with the module) and provide meth
 # INCLUDE LIBRARIES
 import pandas as pd
 import matplotlib.pyplot as plt
+from mplsoccer import Pitch
 import configparser
 
 # DEFINE USEFUL FUNCTIONS
@@ -35,20 +36,37 @@ class visualisation_plot_handler:
         self._df_gps = pd.DataFrame(structure_list).transpose() # create Dataframe & transpose axes
         self._df_gps.columns = ['inst_speed', 'inst_pace', 'split_pace', 'speed_zones']
         print(self._df_gps)
-        #print("done!")
     
     def _create_hr_structure(self): # create Pandas (Dataframe) for HR metrics
-        #print("done!")
         pass
     
     def _create_fitness_structure(self): # create Pandas (Dataframe) for Fitness metrics
-        #print("done!")
-        pass
+        pass # nothing to plot for now...
     
+    ### PLOTTING SECTION ###
     def show_plots(self): # display the visualisation plots of computed metrics
         #self._df_gps.plot()
         self._df_gps['inst_speed'].plot()
         plt.show()
+    
+    def show_GPS_plots(self): # display GPS metrics plots
+        fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(16,9)) # create subplot of 2x2 plots
+        # push pandas dataframe into subplots
+        self._df_gps['inst_speed'].plot(ax=axes[0,0], title="instantaneous speed (m/s)")
+        self._df_gps['inst_pace'].plot(ax=axes[0,1], title="instantaneous pace (min/km)").invert_yaxis()
+        #self._df_gps['split_pace'].plot(ax=axes[1,0], kind='bar',title="split paces (per Km)")
+        #self._df_gps['speed_zones'].plot(ax=axes[1,1], title="time in speed zones (%)").pie()
+        plt.show()
+    ### END: PLOTTING SECTION ###
+
+    ### ROUTE PATH SECTION ###
+    def create_pitch(self): # create football pitch (105m x 68m) for route path visualisation
+        pitch = Pitch(pitch_type='uefa', pitch_color='grass', line_color='white', stripe=True, \
+                      axis=True, label=True)
+        fig, ax = pitch.draw(figsize=(13,8)) # size -> (width, height)
+        plt.title("Player's Route Path - Football Pitch (105 x 68 meters)")
+        plt.show()
+    ### END: ROUTE PATH SECTION ###
 
 
 # INTERNAL CODE TESTING

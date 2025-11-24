@@ -22,34 +22,38 @@ try:
     # Metrics_Handler.compute_Fitness_metrics() # to compute Efficiency & Fitness metrics only
 
     # print computed metrics results
-    print("total distance = {}".format(Metrics_Handler.get_GPS_result_metrics().total_dist))
-    print("total time = {}".format(Metrics_Handler.get_GPS_result_metrics().total_time))
-    print("moving time = {}".format(Metrics_Handler.get_GPS_result_metrics().moving_time))
-    print("split pace = {}".format(Metrics_Handler.get_GPS_result_metrics().split_pace))
-    print("best segment = {}".format(Metrics_Handler.get_GPS_result_metrics().best_segment))
-    print("speed zones = {}".format(Metrics_Handler.get_GPS_result_metrics().speed_zones))
-    print("average speed = {}".format(Metrics_Handler.get_GPS_result_metrics().avg_speed))
-    print("max speed = {}".format(Metrics_Handler.get_GPS_result_metrics().max_speed))
-    print("average pace = {}".format(Metrics_Handler.get_GPS_result_metrics().avg_pace))
-    print("max pace = {}".format(Metrics_Handler.get_GPS_result_metrics().max_pace))
+    # print("total distance = {}".format(Metrics_Handler.get_GPS_result_metrics().total_dist))
+    # print("total time = {}".format(Metrics_Handler.get_GPS_result_metrics().total_time))
+    # print("moving time = {}".format(Metrics_Handler.get_GPS_result_metrics().moving_time))
+    # print("split pace = {}".format(Metrics_Handler.get_GPS_result_metrics().split_pace))
+    # print("best segment = {}".format(Metrics_Handler.get_GPS_result_metrics().best_segment))
+    # print("speed zones = {}".format(Metrics_Handler.get_GPS_result_metrics().speed_zones))
+    # print("average speed = {}".format(Metrics_Handler.get_GPS_result_metrics().avg_speed))
+    # print("max speed = {}".format(Metrics_Handler.get_GPS_result_metrics().max_speed))
+    # print("average pace = {}".format(Metrics_Handler.get_GPS_result_metrics().avg_pace))
+    # print("max pace = {}".format(Metrics_Handler.get_GPS_result_metrics().max_pace))
 
     print("----------------------")
 
-    print("average HR = {}".format(Metrics_Handler.get_HR_result_metrics().avg_hr))
-    print("max HR = {}".format(Metrics_Handler.get_HR_result_metrics().max_hr))
-    print("reserve HR = {}".format(Metrics_Handler.get_HR_result_metrics().hr_reserve))
-    print("zones time HR = {}".format(Metrics_Handler.get_HR_result_metrics().hr_zones))
-    print("intensity dist HR = {}".format(Metrics_Handler.get_HR_result_metrics().intensity_dist))
-    print("training impulse = {}".format(Metrics_Handler.get_HR_result_metrics().trimp))
+    # print("average HR = {}".format(Metrics_Handler.get_HR_result_metrics().avg_hr))
+    # print("max HR = {}".format(Metrics_Handler.get_HR_result_metrics().max_hr))
+    # print("reserve HR = {}".format(Metrics_Handler.get_HR_result_metrics().hr_reserve))
+    # print("zones time HR = {}".format(Metrics_Handler.get_HR_result_metrics().hr_zones))
+    # print("intensity dist HR = {}".format(Metrics_Handler.get_HR_result_metrics().intensity_dist))
+    # print("training impulse = {}".format(Metrics_Handler.get_HR_result_metrics().trimp))
 
     print("----------------------")
 
-    print("aerobic efficiency = {}".format(Metrics_Handler.get_Fitness_result_metrics().aerobic_eff))
-    print("cardiac cost = {}".format(Metrics_Handler.get_Fitness_result_metrics().cardiac_cost))
+    # print("aerobic efficiency = {}".format(Metrics_Handler.get_Fitness_result_metrics().aerobic_eff))
+    # print("cardiac cost = {}".format(Metrics_Handler.get_Fitness_result_metrics().cardiac_cost))
 
     # use visualisation plotter to look at the computed metrics
-    # Plotter = plot_interface.visualisation_plot_handler(Metrics_Handler.get_GPS_result_metrics())
-    # Plotter.show_plots()
+    Plotter = plot_interface.visualisation_plot_handler(Metrics_Handler.get_GPS_result_metrics(), \
+                                                        Metrics_Handler.get_HR_result_metrics(), \
+                                                        Metrics_Handler.get_Fitness_result_metrics())
+    #Plotter.show_plots()
+    Plotter.show_GPS_plots()
+    Plotter.create_pitch()
 
 except:
     print("found an error... stopping program")
