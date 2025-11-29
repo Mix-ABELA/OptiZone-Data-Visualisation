@@ -54,7 +54,25 @@ class visualisation_plot_handler:
         self._speed_series = pd.Series(speed_data_series, index=speed_index_series)
     
     def _create_hr_structure(self): # create Pandas (Dataframe) for HR metrics
-        pass
+        # FOR: heart rate pandas dataframe:
+        self._hr_metrics.hr_list.pop()
+        no_need_list = [0,0] # just to be able to create the pandas Dataframe & access plotting functions
+        structure_list = [self._hr_metrics.hr_list, no_need_list]
+        self._df_hr = pd.DataFrame(structure_list).transpose() # create Dataframe
+        self._df_hr.columns = ['heart_rate', 'no_need']
+        self._df_hr.index = self._gps_metrics.dist_agg # set the x axis of pandas dataframe
+        # FOR: heart rate zones (% distribution) pandas series:
+        hr_data_series = [] # to store percentage elements of speed zones (> 0.0)
+        hr_index_series = [] # to store respective indexes
+        self.hr_explode_series = [] # to store respective explode graph representations
+        explode_count = 0.05
+        for element in self._hr_metrics.intensity_dist:
+            if element != 0.0:
+                hr_data_series.append(element)
+                hr_index_series.append(str(element))
+                self.hr_explode_series.append(explode_count)
+                explode_count += 0.02
+        self._hr_zones_series = pd.Series(hr_data_series, index=hr_index_series)
     
     def _create_fitness_structure(self): # create Pandas (Dataframe) for Fitness metrics
         pass # nothing to plot for now...
@@ -94,6 +112,30 @@ class visualisation_plot_handler:
                                             pctdistance=1.25, explode=self.speed_explode_series)
             PLOT_4.legend(["Walking Zone", "Jogging Zone", "Running Zone", "Sprinting Zone", \
                            "High-Sprint Zone"])
+        # -- DISPLAY ALL PLOTS IN FIGURE --
+        plt.show()
+    
+    def show_HR_plots(self): # display HR metrics plots
+        fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(16,9)) # create subplot of 1x2 plots
+        plt.subplots_adjust(hspace=0.3,top=0.95, bottom=0.06, right=0.97, left=0.05, wspace=0.15)
+        # -- push pandas dataframe into subplots --
+        # plot 1: heart rate (bpm)
+        PLOT_1 = self._df_hr['heart_rate'].plot(ax=axes[0], \
+                                title="Heart Rate (bpm) v/s Distance (m)", color="red", \
+                                xlabel="Distance (meters)", ylabel="heart rate (BPM)")
+        PLOT_1.axhline(y=self._hr_metrics.avg_hr, color="blue", linestyle="--")
+        PLOT_1.axhline(y=self._hr_metrics.max_hr, color="green", linestyle="--")
+        PLOT_1.axhline(y=self._hr_metrics.hr_reserve, color="black", linestyle="--")
+        PLOT_1.fill_between(self._df_hr.index, self._df_hr['heart_rate'], color='red', alpha=0.3)
+        PLOT_1.legend(["Heart Rate", "avg. heart rate", "max. heart rate", "Reserve heart rate"], \
+                      loc='lower right')
+        
+        # plot 2: heart rate zones distribution (%)
+        if len(self._hr_metrics.intensity_dist) > 0: # only plot if not empty...
+            PLOT_2 = self._hr_zones_series.plot(ax=axes[1], kind='pie', title="HR Zones (%)", \
+                                            autopct="%.2f%%", labels=None,fontsize=10, \
+                                            pctdistance=0.5, explode=self.hr_explode_series)
+            PLOT_2.legend(["Zone 1", "Zone 2", "Zone 3", "Zone 4", "Zone 5"])
         # -- DISPLAY ALL PLOTS IN FIGURE --
         plt.show()
     ### END: PLOTTING SECTION ###

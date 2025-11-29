@@ -29,7 +29,7 @@ class workload_metrics_handler:
                                         'max_pace', 'total_time','moving_time', 'split_pace', \
                                         'best_segment', 'speed_zones', 'dist_agg'])
         self.tuple_hr_result = namedtuple('hr_result_metrics', ['avg_hr', 'max_hr', \
-                                        'hr_reserve', 'hr_zones', 'trimp', 'intensity_dist'])
+                                        'hr_reserve', 'hr_zones', 'trimp', 'intensity_dist', 'hr_list'])
         self.tuple_fit_result = namedtuple('fit_result_metrics', ['aerobic_eff', 'cardiac_cost'])
         self.computed_GPS = False # monitor if basic movement metrics have been computed
         self.computed_HR = False # monitor if cardiovascular metrics have been computed
@@ -65,6 +65,8 @@ class workload_metrics_handler:
         print("> GPS workload metrics computed successfully !")
     
     def compute_HR_metrics(self): # compute necessary HR metrics (Cardiovascular Load)
+        # get the full list of recorded HR for plotting
+        heart_rate_list = self._dataset.HR_list
         # compute average heart rate in BPM
         avg_hr = self._calculator.average_heart_rate()
         # compute maxmimum recorded heart rate in BPM
@@ -81,7 +83,7 @@ class workload_metrics_handler:
         trimp = self._calculator.training_impulse()
         # SEND the results with namedtuple data structure
         self._hr_result_metrics = self.tuple_hr_result(avg_hr, max_hr, reserve_hr, hr_zones, \
-                                                       trimp, intensity_dist)
+                                                       trimp, intensity_dist, heart_rate_list)
         self.computed_HR = True # ALERT: HR metrics computed
         print("> HR workload metrics computed successfully !")
     
