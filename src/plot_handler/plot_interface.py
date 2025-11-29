@@ -32,9 +32,10 @@ class visualisation_plot_handler:
 
     def _create_gps_structure(self): # create Pandas (Dataframe) for GPS metrics
         structure_list = [self._gps_metrics.inst_speed, self._gps_metrics.inst_pace, \
-                          self._gps_metrics.split_pace, self._gps_metrics.speed_zones]
+                          self._gps_metrics.split_pace, self._gps_metrics.speed_zones, \
+                          self._gps_metrics.dist_agg]
         self._df_gps = pd.DataFrame(structure_list).transpose() # create Dataframe & transpose axes
-        self._df_gps.columns = ['inst_speed', 'inst_pace', 'split_pace', 'speed_zones']
+        self._df_gps.columns = ['inst_speed', 'inst_pace', 'split_pace', 'speed_zones', 'dist_agg']
         print(self._df_gps)
     
     def _create_hr_structure(self): # create Pandas (Dataframe) for HR metrics
@@ -44,11 +45,6 @@ class visualisation_plot_handler:
         pass # nothing to plot for now...
     
     ### PLOTTING SECTION ###
-    def show_plots(self): # display the visualisation plots of computed metrics
-        #self._df_gps.plot()
-        self._df_gps['inst_speed'].plot()
-        plt.show()
-    
     def show_GPS_plots(self): # display GPS metrics plots
         fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(16,9)) # create subplot of 2x2 plots
         # push pandas dataframe into subplots

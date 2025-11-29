@@ -27,7 +27,7 @@ class workload_metrics_handler:
         self.tuple_gps_result = namedtuple('gps_result_metrics', ['total_dist', 'inst_speed', \
                                         'avg_speed', 'max_speed', 'inst_pace', 'avg_pace', \
                                         'max_pace', 'total_time','moving_time', 'split_pace', \
-                                        'best_segment', 'speed_zones'])
+                                        'best_segment', 'speed_zones', 'dist_agg'])
         self.tuple_hr_result = namedtuple('hr_result_metrics', ['avg_hr', 'max_hr', \
                                         'hr_reserve', 'hr_zones', 'trimp', 'intensity_dist'])
         self.tuple_fit_result = namedtuple('fit_result_metrics', ['aerobic_eff', 'cardiac_cost'])
@@ -54,10 +54,13 @@ class workload_metrics_handler:
         best_segment = self._calculator.best_segment_time()
         # compute % of time spent in speed zones (walking - jogging - running - sprinting - intense)
         speed_zones = self._calculator.speed_zones()
+        # compute aggregated distance in meters for plotting
+        distance_aggregated = self._calculator.aggregate_distance()
         # SEND the results with namedtuple data structure
         self._gps_result_metrics = self.tuple_gps_result(total_dist, inst_speed, avg_speed, \
                                             max_speed, inst_pace, avg_pace, max_pace, total_time, \
-                                            moving_time, split_pace, best_segment, speed_zones)
+                                            moving_time, split_pace, best_segment, speed_zones, \
+                                            distance_aggregated)
         self.computed_GPS = True # ALERT: GPS metrics computed
         print("> GPS workload metrics computed successfully !")
     

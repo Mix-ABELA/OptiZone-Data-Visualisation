@@ -35,6 +35,7 @@ class workload_metrics_calculator:
         self.max_hr = 0 # variable for maximum recorded heart rate in BPM
         self.resting_hr = 60 # variable to store athlete's resting hear rate in BPM
         self.athlete_age = 23 # varibale to store athlete's age in years
+        self.distance_aggregation = [] # list for aggregated distance change in meters
 
     ### BASIC MOVEMENT METRICS FUNCTIONS ###
     def total_distance(self): # METRIC: compute total distance in Km
@@ -152,6 +153,13 @@ class workload_metrics_calculator:
         stopped_time = stopped_time / 60 # in min
         self.mov_time = self.total_time - stopped_time # in min
         return round(self.mov_time, 2), round(self.total_time, 2)
+    
+    def aggregate_distance(self): # METRIC: compute aggregated distance list in meters (for plotting)
+        aggregation = 0.0 # to sum up distance in meters
+        for index in range(0, len(self.dx)): # iterate through distance change
+            aggregation += self.dx[index] # add distance change
+            self.distance_aggregation.append(aggregation)
+        return self.distance_aggregation
     ### END: BASIC MOVEMENT METRICS FUNCTIONS ###
 
     ### SEGMENTED PERFORMANCE METRICS FUNCTIONS ###

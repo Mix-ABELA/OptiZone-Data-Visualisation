@@ -32,6 +32,7 @@ try:
     # print("max speed = {}".format(Metrics_Handler.get_GPS_result_metrics().max_speed))
     # print("average pace = {}".format(Metrics_Handler.get_GPS_result_metrics().avg_pace))
     # print("max pace = {}".format(Metrics_Handler.get_GPS_result_metrics().max_pace))
+    # print("aggregated distance = {}".format(Metrics_Handler.get_GPS_result_metrics().dist_agg))
 
     print("----------------------")
 
@@ -51,9 +52,8 @@ try:
     Plotter = plot_interface.visualisation_plot_handler(Metrics_Handler.get_GPS_result_metrics(), \
                                                         Metrics_Handler.get_HR_result_metrics(), \
                                                         Metrics_Handler.get_Fitness_result_metrics())
-    #Plotter.show_plots()
     Plotter.show_GPS_plots()
-    Plotter.create_pitch()
+    #Plotter.create_pitch()
 
 except:
     print("found an error... stopping program")
