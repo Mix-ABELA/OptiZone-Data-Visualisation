@@ -31,12 +31,27 @@ class visualisation_plot_handler:
         self._create_fitness_structure() # Pandas for Fitness Indicator
 
     def _create_gps_structure(self): # create Pandas (Dataframe) for GPS metrics
-        structure_list = [self._gps_metrics.inst_speed, self._gps_metrics.inst_pace, \
-                          self._gps_metrics.split_pace, self._gps_metrics.speed_zones, \
-                          self._gps_metrics.dist_agg]
+        # FOR: inst. speed & pace pandas dataframe:
+        structure_list = [self._gps_metrics.inst_speed, self._gps_metrics.inst_pace]
         self._df_gps = pd.DataFrame(structure_list).transpose() # create Dataframe & transpose axes
-        self._df_gps.columns = ['inst_speed', 'inst_pace', 'split_pace', 'speed_zones', 'dist_agg']
-        print(self._df_gps)
+        self._df_gps.columns = ['inst_speed', 'inst_pace']
+        self._df_gps.index = self._gps_metrics.dist_agg # set the x-axis of pandas dataframe
+        # FOR: split paces pandas series:
+        pace_index_series = [str(index+1) for index in range(len(self._gps_metrics.split_pace))]
+        self._pace_series = pd.Series(self._gps_metrics.split_pace, index=pace_index_series,\
+                                    name="Split Paces (min/km)")
+        # FOR: speed zones percentages pandas series:
+        speed_data_series = [] # to store percentage elements of speed zones (> 0.0)
+        speed_index_series = [] # to store respective indexes
+        self.speed_explode_series = [] # to store respective explode graph representations
+        explode_count = 0.05
+        for element in self._gps_metrics.speed_zones:
+            if element != 0.0:
+                speed_data_series.append(element)
+                speed_index_series.append(str(element))
+                self.speed_explode_series.append(explode_count)
+                explode_count += 0.07
+        self._speed_series = pd.Series(speed_data_series, index=speed_index_series)
     
     def _create_hr_structure(self): # create Pandas (Dataframe) for HR metrics
         pass
@@ -46,12 +61,40 @@ class visualisation_plot_handler:
     
     ### PLOTTING SECTION ###
     def show_GPS_plots(self): # display GPS metrics plots
-        fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(16,9)) # create subplot of 2x2 plots
-        # push pandas dataframe into subplots
-        self._df_gps['inst_speed'].plot(ax=axes[0,0], title="instantaneous speed (m/s)")
-        self._df_gps['inst_pace'].plot(ax=axes[0,1], title="instantaneous pace (min/km)").invert_yaxis()
-        #self._df_gps['split_pace'].plot(ax=axes[1,0], kind='bar',title="split paces (per Km)")
-        #self._df_gps['speed_zones'].plot(ax=axes[1,1], title="time in speed zones (%)").pie()
+        fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(17,10)) # create subplot of 2x2 plots
+        plt.subplots_adjust(hspace=0.3,top=0.95, bottom=0.06, right=0.97, left=0.05, wspace=0.15)
+        # -- push pandas dataframe into subplots --
+        # plot 1: instantaneous speed (m/s)
+        PLOT_1 = self._df_gps['inst_speed'].plot(ax=axes[0,0], \
+                                title="instantaneous Speed (m/s) v/s Distance (m)", color="blue", \
+                                xlabel="Distance (meters)", ylabel="instantaneous Speed (m/s)")
+        PLOT_1.axhline(y=(self._gps_metrics.avg_speed / 3.6), color="red", linestyle="--")
+        PLOT_1.fill_between(self._df_gps.index, self._df_gps['inst_speed'], color='blue', alpha=0.3)
+        PLOT_1.legend(["inst. speed", "avg. speed"])
+
+        # plot 2: instantaneous pace (min/km)
+        PLOT_2 = self._df_gps['inst_pace'].plot(ax=axes[0,1], \
+                                title="instantaneous Pace (min/km) v/s Distance (m)", color="green", \
+                                xlabel="Distance (meters)", ylabel="instantaneous Pace (min/km)")
+        PLOT_2.axhline(y=(self._gps_metrics.avg_pace), color="red", linestyle="--")
+        PLOT_2.fill_between(self._df_gps.index, self._df_gps['inst_pace'], color='green', alpha=0.3)
+        PLOT_2.legend(["inst. pace", "avg. pace"])
+        PLOT_2.invert_yaxis()
+
+        # plot 3: split paces (min/km) per km
+        if len(self._gps_metrics.split_pace) > 0: # only plot if not empty...
+            PLOT_3 = self._pace_series.plot(ax=axes[1,0], kind='barh', title="Split Paces", \
+                                            xlabel="split pace (min/km)", \
+                                            ylabel="split distance per Km")
+
+        # plot 4: speed zones (%)
+        if len(self._gps_metrics.speed_zones) > 0: # only plot if not empty...
+            PLOT_4 = self._speed_series.plot(ax=axes[1,1], kind='pie', title="Speed Zones (%)", \
+                                            autopct="%.2f%%", labels=None,fontsize=10, \
+                                            pctdistance=1.25, explode=self.speed_explode_series)
+            PLOT_4.legend(["Walking Zone", "Jogging Zone", "Running Zone", "Sprinting Zone", \
+                           "High-Sprint Zone"])
+        # -- DISPLAY ALL PLOTS IN FIGURE --
         plt.show()
     ### END: PLOTTING SECTION ###
 
