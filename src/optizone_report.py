@@ -6,7 +6,7 @@ import os
 
 try:
     dataset_file_path = "../data_samples/"
-    csv_file_name = os.path.join(dataset_file_path, "GPS_Sample_downsampled_light.csv")
+    csv_file_name = os.path.join(dataset_file_path, "GPS_Sample_downsampled_hard.csv")
 
     # create CSV handler object instance & get processed data list
     CSV_Handler = csv_handler_interface.csv_data_handler(csv_file_name)
@@ -20,6 +20,7 @@ try:
     # Metrics_Handler.compute_GPS_metrics() # to compute GPS metrics only
     # Metrics_Handler.compute_HR_metrics() # to compute Hear Rate metrics only
     # Metrics_Handler.compute_Fitness_metrics() # to compute Efficiency & Fitness metrics only
+    Metrics_Handler._calculator.pitch_gps_positions()
 
     # print computed metrics results
     # print("total distance = {}".format(Metrics_Handler.get_GPS_result_metrics().total_dist))
@@ -52,8 +53,8 @@ try:
     Plotter = plot_interface.visualisation_plot_handler(Metrics_Handler.get_GPS_result_metrics(), \
                                                         Metrics_Handler.get_HR_result_metrics(), \
                                                         Metrics_Handler.get_Fitness_result_metrics())
-    Plotter.show_GPS_plots()
-    Plotter.show_HR_plots()
+    #Plotter.show_GPS_plots()
+    #Plotter.show_HR_plots()
     #Plotter.create_pitch()
 
 except:

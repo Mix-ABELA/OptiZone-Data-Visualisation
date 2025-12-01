@@ -7,6 +7,7 @@ study of the provided dataset.
 
 # INCLUDE LIBRARIES
 import math
+from pyproj import Transformer
 import configparser
 
 # DEFINE USEFUL FUNCTIONS
@@ -36,6 +37,8 @@ class workload_metrics_calculator:
         self.resting_hr = 60 # variable to store athlete's resting hear rate in BPM
         self.athlete_age = 23 # varibale to store athlete's age in years
         self.distance_aggregation = [] # list for aggregated distance change in meters
+        self.pitch_corners = [(46.219117,6.082403), (46.219790,6.083261), (46.220172,6.082642), (46.219500,6.081783)]
+        # > list of tuples to store pitch corners (lat, lon) order: [D_L, D_R, U_R, U_L]
 
     ### BASIC MOVEMENT METRICS FUNCTIONS ###
     def total_distance(self): # METRIC: compute total distance in Km
@@ -72,6 +75,9 @@ class workload_metrics_calculator:
 
     def _convert_deg2rad(self, degrees): # convert degrees to radians
         return degrees * math.pi / 180.0
+    
+    def _convert_rad2deg(self, rad): # convert radians to degrees
+        return rad * 180.0 / math.pi
     
     def speed_pace(self): # METRIC: compute instantaneous(m/s), average(km/h) & max speed/pace (min/km)
         self._compute_dt_conc() # fill the dt_conc time list for computation
@@ -160,6 +166,72 @@ class workload_metrics_calculator:
             aggregation += self.dx[index] # add distance change
             self.distance_aggregation.append(aggregation)
         return self.distance_aggregation
+    
+    def pitch_gps_positions(self): # METRIC: compute GPS positions in the Pitch local frame
+        pitch_pos = [] # list of 2 lists to store pitch positions [Lat - Lon]
+        # -- convert GPS coordinates (lat, lon) to 2D Cartesian coordinates (x, y) --
+        earth_radius = 6371 # Km
+        lat_reference = self._convert_deg2rad(self.pitch_corners[0][0]) # set D_L corner as reference (0,0)
+        lon_reference = self._convert_deg2rad(self.pitch_corners[0][1]) # set D_L corner as reference (0,0)
+        corner_cartesian_dx = [] # difference on horizontal axis
+        corner_cartesian_dy = [] # difference on vertical axis
+        for element in self.pitch_corners: # iterate through 3 corners relative to reference point D_L
+            dx = earth_radius * (self._convert_deg2rad(element[1]) - lon_reference) * 1000 # in meters
+            dy = earth_radius * (self._convert_deg2rad(element[0]) - lat_reference) * 1000 # in meters
+            corner_cartesian_dx.append(dx)
+            corner_cartesian_dy.append(dy)
+        print("X: {}".format(corner_cartesian_dx))
+        print("Y: {}".format(corner_cartesian_dy))
+        # transformer_gps_cartesian = Transformer.from_crs("EPSG:4326", "EPSG:3857") # create pyproj for UTM projection 
+        # gps_points_cartesian_x = [] # store GPS conversion to Cartesian (UTM)
+        # gps_points_cartesian_y = [] # store GPS conversion to Cartesian (UTM)
+        # ref_x, ref_y = transformer_gps_cartesian.transform(self.pitch_corners[0][0], self.pitch_corners[0][1])
+        # for index in range(len(self._dataset.lat_list)):
+        #     x, y = transformer_gps_cartesian.transform(self._dataset.lat_list[index], self._dataset.lon_list[index])
+        #     gps_points_cartesian_x.append(x - ref_x)
+        #     gps_points_cartesian_y.append(y - ref_y)
+        gps_cartesian_dx = []
+        gps_cartesian_dy = []
+        for index in range(len(self._dataset.lat_list)):
+            dx = earth_radius * (self._convert_deg2rad(self._dataset.lon_list[index]) - lon_reference) * 1000 # in meters
+            dy = earth_radius * (self._convert_deg2rad(self._dataset.lat_list[index]) - lat_reference) * 1000 # in meters
+            gps_cartesian_dx.append(dx)
+            gps_cartesian_dy.append(dy)
+        # print("gps X: {}".format(gps_cartesian_dx))
+        # print("gps Y: {}".format(gps_cartesian_dy))
+        # -- find pitch rotation angle compared to horizontal axis for plotting --
+        rotation_angle = math.atan2(corner_cartesian_dy[1], corner_cartesian_dx[1])
+        rotation_angle = self._convert_rad2deg(rotation_angle)
+        print("rotation angle = {}".format(rotation_angle))
+        # -- create Rotation Matrix with rotation angle for gps -> pitch transformation [CCW rotation so theta negative]--
+        rot_matrix = [math.cos(rotation_angle), math.sin(rotation_angle), -math.sin(rotation_angle), math.cos(rotation_angle)]
+        print("rotation matrix: {}".format(rot_matrix))
+        # -- compute new 2D Cartesian coordinates for all GPS points --
+        cartesian_x = [] # store computed points X
+        cartesian_y = [] # store computed points Y
+        for index in range(len(self._dataset.lat_list)): # iterate through GPS points (lat, lon)
+            new_x = (rot_matrix[0] * gps_cartesian_dx[index]) + (rot_matrix[1] * gps_cartesian_dy[index])
+            new_y = (rot_matrix[2] * gps_cartesian_dx[index]) + (rot_matrix[3] * gps_cartesian_dy[index])
+            cartesian_x.append(new_x)
+            cartesian_y.append(new_y)
+        # print("2D X : {}".format(cartesian_x))
+        # print("2D Y : {}".format(cartesian_y))
+        test_x = []
+        test_y = []
+        ref_x = self.pitch_corners[0][1]
+        ref_y = self.pitch_corners[0][0]
+        for element in self.pitch_corners: # iterate through GPS points (lat, lon)
+            new_x = (rot_matrix[0] * self._convert_deg2rad(element[1]-ref_x)) + (rot_matrix[1] * self._convert_deg2rad(element[0]-ref_y))
+            new_y = (rot_matrix[2] * self._convert_deg2rad(element[1]-ref_x)) + (rot_matrix[3] * self._convert_deg2rad(element[0]-ref_y))
+            # new_x = (new_x) * earth_radius * 1000 # in meters
+            # new_y = (new_y) * earth_radius * 1000 # in meters
+            new_x = self._convert_rad2deg(new_x+self._convert_deg2rad(ref_x))
+            new_y = self._convert_rad2deg(new_y+self._convert_deg2rad(ref_y))
+            test_x.append(new_x)
+            test_y.append(new_y)
+        print("2D X : {}".format(test_x))
+        print("2D Y : {}".format(test_y))
+        return pitch_pos
     ### END: BASIC MOVEMENT METRICS FUNCTIONS ###
 
     ### SEGMENTED PERFORMANCE METRICS FUNCTIONS ###
