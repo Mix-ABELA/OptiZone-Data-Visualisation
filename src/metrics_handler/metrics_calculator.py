@@ -169,68 +169,49 @@ class workload_metrics_calculator:
     
     def pitch_gps_positions(self): # METRIC: compute GPS positions in the Pitch local frame
         pitch_pos = [] # list of 2 lists to store pitch positions [Lat - Lon]
-        # -- convert GPS coordinates (lat, lon) to 2D Cartesian coordinates (x, y) --
-        earth_radius = 6371 # Km
+        # -- GOAL: convert GPS coordinates (lat, lon) to 2D Cartesian coordinates (x, y) --
+        earth_radius = 6371 # in Km
         lat_reference = self._convert_deg2rad(self.pitch_corners[0][0]) # set D_L corner as reference (0,0)
         lon_reference = self._convert_deg2rad(self.pitch_corners[0][1]) # set D_L corner as reference (0,0)
-        corner_cartesian_dx = [] # difference on horizontal axis
-        corner_cartesian_dy = [] # difference on vertical axis
-        for element in self.pitch_corners: # iterate through 3 corners relative to reference point D_L
-            dx = earth_radius * (self._convert_deg2rad(element[1]) - lon_reference) * 1000 # in meters
-            dy = earth_radius * (self._convert_deg2rad(element[0]) - lat_reference) * 1000 # in meters
-            corner_cartesian_dx.append(dx)
-            corner_cartesian_dy.append(dy)
-        print("X: {}".format(corner_cartesian_dx))
-        print("Y: {}".format(corner_cartesian_dy))
-        # transformer_gps_cartesian = Transformer.from_crs("EPSG:4326", "EPSG:3857") # create pyproj for UTM projection 
-        # gps_points_cartesian_x = [] # store GPS conversion to Cartesian (UTM)
-        # gps_points_cartesian_y = [] # store GPS conversion to Cartesian (UTM)
-        # ref_x, ref_y = transformer_gps_cartesian.transform(self.pitch_corners[0][0], self.pitch_corners[0][1])
-        # for index in range(len(self._dataset.lat_list)):
-        #     x, y = transformer_gps_cartesian.transform(self._dataset.lat_list[index], self._dataset.lon_list[index])
-        #     gps_points_cartesian_x.append(x - ref_x)
-        #     gps_points_cartesian_y.append(y - ref_y)
-        gps_cartesian_dx = []
-        gps_cartesian_dy = []
-        for index in range(len(self._dataset.lat_list)):
-            dx = earth_radius * (self._convert_deg2rad(self._dataset.lon_list[index]) - lon_reference) * 1000 # in meters
-            dy = earth_radius * (self._convert_deg2rad(self._dataset.lat_list[index]) - lat_reference) * 1000 # in meters
-            gps_cartesian_dx.append(dx)
-            gps_cartesian_dy.append(dy)
-        # print("gps X: {}".format(gps_cartesian_dx))
-        # print("gps Y: {}".format(gps_cartesian_dy))
-        # -- find pitch rotation angle compared to horizontal axis for plotting --
-        rotation_angle = math.atan2(corner_cartesian_dy[1], corner_cartesian_dx[1])
-        rotation_angle = self._convert_rad2deg(rotation_angle)
-        print("rotation angle = {}".format(rotation_angle))
-        # -- create Rotation Matrix with rotation angle for gps -> pitch transformation [CCW rotation so theta negative]--
+        # -- compute pitch rotation angle & rotation matrix from D_R corner --
+        corner_cartesian_dx = earth_radius * (self._convert_deg2rad(self.pitch_corners[1][1]) - lon_reference) * 1000 # in meters
+        corner_cartesian_dy = earth_radius * (self._convert_deg2rad(self.pitch_corners[1][0]) - lat_reference) * 1000 # in meters
+        # find pitch rotation angle compared to horizontal axis for plotting
+        rotation_angle = math.atan2(corner_cartesian_dy, corner_cartesian_dx)
+        print("rotation angle = {}".format(self._convert_rad2deg(rotation_angle)))
+        # create Rotation Matrix with rotation angle for gps -> pitch transformation [CCW rotation so theta negative]
         rot_matrix = [math.cos(rotation_angle), math.sin(rotation_angle), -math.sin(rotation_angle), math.cos(rotation_angle)]
         print("rotation matrix: {}".format(rot_matrix))
-        # -- compute new 2D Cartesian coordinates for all GPS points --
-        cartesian_x = [] # store computed points X
-        cartesian_y = [] # store computed points Y
-        for index in range(len(self._dataset.lat_list)): # iterate through GPS points (lat, lon)
-            new_x = (rot_matrix[0] * gps_cartesian_dx[index]) + (rot_matrix[1] * gps_cartesian_dy[index])
-            new_y = (rot_matrix[2] * gps_cartesian_dx[index]) + (rot_matrix[3] * gps_cartesian_dy[index])
-            cartesian_x.append(new_x)
-            cartesian_y.append(new_y)
-        # print("2D X : {}".format(cartesian_x))
-        # print("2D Y : {}".format(cartesian_y))
-        test_x = []
-        test_y = []
-        ref_x = self.pitch_corners[0][1]
-        ref_y = self.pitch_corners[0][0]
-        for element in self.pitch_corners: # iterate through GPS points (lat, lon)
-            new_x = (rot_matrix[0] * self._convert_deg2rad(element[1]-ref_x)) + (rot_matrix[1] * self._convert_deg2rad(element[0]-ref_y))
-            new_y = (rot_matrix[2] * self._convert_deg2rad(element[1]-ref_x)) + (rot_matrix[3] * self._convert_deg2rad(element[0]-ref_y))
-            # new_x = (new_x) * earth_radius * 1000 # in meters
-            # new_y = (new_y) * earth_radius * 1000 # in meters
-            new_x = self._convert_rad2deg(new_x+self._convert_deg2rad(ref_x))
-            new_y = self._convert_rad2deg(new_y+self._convert_deg2rad(ref_y))
-            test_x.append(new_x)
-            test_y.append(new_y)
-        print("2D X : {}".format(test_x))
-        print("2D Y : {}".format(test_y))
+        # -- compute GPS points' relative distances from reference & respective dx, dy --
+        point_distances, point_dx, point_dy = ([] for i in range(3))
+        for element in self.pitch_corners: # iterate through 3 corners relative to reference point D_L
+            # compute relative distance with great-circle arc formulas (https://en.wikipedia.org/wiki/Great-circle_distance)
+            chord_deltaX = math.cos(self._convert_deg2rad(element[0])) * math.cos(self._convert_deg2rad(element[1])) - math.cos(lat_reference) * math.cos(lon_reference)
+            chord_deltaY = math.cos(self._convert_deg2rad(element[0])) * math.sin(self._convert_deg2rad(element[1])) - math.cos(lat_reference) * math.sin(lon_reference)
+            chord_deltaZ = math.sin(self._convert_deg2rad(element[0])) - math.sin(lat_reference)
+            delta_sigma_c = math.sqrt((chord_deltaX)**2 + (chord_deltaY)**2 +(chord_deltaZ)**2)
+            center_angle = 2 * math.asin(delta_sigma_c / 2)
+            distance = earth_radius * center_angle * 1000 # relative point distance in meters
+            point_distances.append(distance)
+            # compute respective dx, dy for rotation matrix
+            dx = distance * math.cos(rotation_angle)
+            dy = distance * math.sin(rotation_angle)
+            point_dx.append(dx)
+            point_dy.append(dy)
+        print("Distances: {}".format(point_distances))
+        print("Dx: {}".format(point_dx))
+        print("Dy: {}".format(point_dy))
+        # -- compute new 2D Cartesian coordinates for all GPS points using Rotating Matrix --
+        new_point_x, new_point_y = ([] for i in range(2))
+        for index in range(len(self.pitch_corners)): # iterate through GPS points (lat, lon)
+            # new_dx = earth_radius * (self._convert_deg2rad(element[1]) - lon_reference) * 1000
+            # new_dy = earth_radius * (self._convert_deg2rad(element[0]) - lat_reference) * 1000
+            new_x = (rot_matrix[0] * point_dx[index]) + (rot_matrix[1] * point_dy[index])
+            new_y = (rot_matrix[2] * point_dx[index]) + (rot_matrix[3] * point_dy[index])
+            new_point_x.append(new_x)
+            new_point_y.append(new_y)
+        print("2D X : {}".format(new_point_x))
+        print("2D Y : {}".format(new_point_y))
         return pitch_pos
     ### END: BASIC MOVEMENT METRICS FUNCTIONS ###
 
