@@ -179,63 +179,47 @@ class workload_metrics_calculator:
         # find pitch rotation angle compared to horizontal axis for plotting
         rotation_angle = math.atan2(corner_cartesian_dy, corner_cartesian_dx)
         rotation_angle = rotation_angle - rotation_angle * 0.185 # modify angle with linear correction
-        print("---------------")
         print("rotation angle = {}".format(self._convert_rad2deg(rotation_angle)))
         # create Rotation Matrix with rotation angle for gps -> pitch transformation [CCW rotation so theta negative]
         rot_matrix = [math.cos(rotation_angle), math.sin(rotation_angle), -math.sin(rotation_angle), math.cos(rotation_angle)]
         print("rotation matrix: {}".format(rot_matrix))
-        print("---------------")
-        # -- compute GPS points' relative distances from reference & respective dx, dy --
-        point_distances, point_dx, point_dy = ([] for i in range(3))
-        amplitude_before = []
-        angle_before = []
-        for element in self.pitch_corners: # iterate through 3 corners relative to reference point D_L
+        # -- compute GPS points' relative distances from reference & respective dx, dy for rotation matrix --
+        points_dx, points_dy = ([] for i in range(2))
+        new_point_x, new_point_y = ([] for i in range(2))
+        for index in range(len(self._dataset.lat_list)): # iterate through all GPS data points
+            lat_point = self._convert_deg2rad(self._dataset.lat_list[index]) # GPS latitude in radians
+            lon_point = self._convert_deg2rad(self._dataset.lon_list[index]) # GPS longitude in radians
             # compute relative distance with great-circle arc formulas (https://en.wikipedia.org/wiki/Great-circle_distance)
-            chord_deltaX = math.cos(self._convert_deg2rad(element[0])) * math.cos(self._convert_deg2rad(element[1])) - math.cos(lat_reference) * math.cos(lon_reference)
-            chord_deltaY = math.cos(self._convert_deg2rad(element[0])) * math.sin(self._convert_deg2rad(element[1])) - math.cos(lat_reference) * math.sin(lon_reference)
-            chord_deltaZ = math.sin(self._convert_deg2rad(element[0])) - math.sin(lat_reference)
+            chord_deltaX = math.cos(lat_point) * math.cos(lon_point) - math.cos(lat_reference) * math.cos(lon_reference)
+            chord_deltaY = math.cos(lat_point) * math.sin(lon_point) - math.cos(lat_reference) * math.sin(lon_reference)
+            chord_deltaZ = math.sin(lat_point) - math.sin(lat_reference)
             delta_sigma_c = math.sqrt((chord_deltaX)**2 + (chord_deltaY)**2 +(chord_deltaZ)**2)
             center_angle = 2 * math.asin(delta_sigma_c / 2)
             distance = earth_radius * center_angle * 1000 # relative point distance in meters
-            point_distances.append(distance)
             # compute respective dx, dy for rotation matrix
-            angle_dx = earth_radius * (self._convert_deg2rad(element[1]) - lon_reference) * 1000 # in meters
-            angle_dy = earth_radius * (self._convert_deg2rad(element[0]) - lat_reference) * 1000 # in meters
+            angle_dx = earth_radius * (lon_point - lon_reference) * 1000 # in meters
+            angle_dy = earth_radius * (lat_point - lat_reference) * 1000 # in meters
             corresponding_point_angle = math.atan2(angle_dy, angle_dx)
             corresponding_point_angle = corresponding_point_angle - corresponding_point_angle * 0.185 # modify angle with linear correction
-            dx = distance * math.cos(corresponding_point_angle)
-            dy = distance * math.sin(corresponding_point_angle)
-            point_dx.append(dx)
-            point_dy.append(dy)
-            test_amplitude = math.sqrt((dx**2)+(dy**2))
-            amplitude_before.append(test_amplitude)
-            test_angle = self._convert_rad2deg(math.atan2(dy, dx))
-            angle_before.append(test_angle)
-        print("Distances: {}".format(point_distances))
-        print("Dx: {}".format(point_dx))
-        print("Dy: {}".format(point_dy))
-        print("---------------")
-        print("BEFORE Amplitude: {}".format(amplitude_before))
-        print("BEFORE Angle: {}".format(angle_before))
-        print("---------------")
-        # -- compute new 2D Cartesian coordinates for all GPS points using Rotating Matrix --
-        new_point_x, new_point_y = ([] for i in range(2))
-        amplitude_after = []
-        angle_after = []
-        for index in range(len(self.pitch_corners)): # iterate through GPS points (lat, lon)
-            new_x = (rot_matrix[0] * point_dx[index]) + (rot_matrix[1] * point_dy[index])
-            new_y = (rot_matrix[2] * point_dx[index]) + (rot_matrix[3] * point_dy[index])
+            dx = distance * math.cos(corresponding_point_angle) # 2D cartesian coordinates X
+            dy = distance * math.sin(corresponding_point_angle) # 2D cartesian coordinates Y
+            # add to the list of points dX & dY (before matrix rotation)
+            points_dx.append(dx)
+            points_dy.append(dy)
+            # -- compute new 2D Cartesian coordinates for all GPS points using Rotating Matrix --
+            new_x = (rot_matrix[0] * points_dx[index]) + (rot_matrix[1] * points_dy[index])
+            new_y = (rot_matrix[2] * points_dx[index]) + (rot_matrix[3] * points_dy[index])
             new_point_x.append(new_x)
             new_point_y.append(new_y)
-            test_amplitude = math.sqrt((new_x**2)+(new_y**2))
-            amplitude_after.append(test_amplitude)
-            test_angle = self._convert_rad2deg(math.atan2(new_y, new_x))
-            angle_after.append(test_angle)
+        print("OLD X : {}".format(points_dx))
+        print("OLD Y : {}".format(points_dy))
+        print("---------------")
         print("2D X : {}".format(new_point_x))
         print("2D Y : {}".format(new_point_y))
         print("---------------")
-        print("AFTER Amplitude: {}".format(amplitude_after))
-        print("AFTER Angle: {}".format(angle_after))
+        # -- Export translated GPS coordinates into 2D Cartesian --
+        pitch_pos.append(new_point_x) # add new 2D cartesian X points to export
+        pitch_pos.append(new_point_y) # add new 2D cartesian Y points to export
         return pitch_pos
     ### END: BASIC MOVEMENT METRICS FUNCTIONS ###
 
