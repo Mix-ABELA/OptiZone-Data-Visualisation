@@ -179,10 +179,8 @@ class workload_metrics_calculator:
         # find pitch rotation angle compared to horizontal axis for plotting
         rotation_angle = math.atan2(corner_cartesian_dy, corner_cartesian_dx)
         rotation_angle = rotation_angle - rotation_angle * 0.185 # modify angle with linear correction
-        print("rotation angle = {}".format(self._convert_rad2deg(rotation_angle)))
         # create Rotation Matrix with rotation angle for gps -> pitch transformation [CCW rotation so theta negative]
         rot_matrix = [math.cos(rotation_angle), math.sin(rotation_angle), -math.sin(rotation_angle), math.cos(rotation_angle)]
-        print("rotation matrix: {}".format(rot_matrix))
         # -- compute GPS points' relative distances from reference & respective dx, dy for rotation matrix --
         points_dx, points_dy = ([] for i in range(2))
         new_point_x, new_point_y = ([] for i in range(2))
@@ -211,12 +209,6 @@ class workload_metrics_calculator:
             new_y = (rot_matrix[2] * points_dx[index]) + (rot_matrix[3] * points_dy[index])
             new_point_x.append(new_x)
             new_point_y.append(new_y)
-        print("OLD X : {}".format(points_dx))
-        print("OLD Y : {}".format(points_dy))
-        print("---------------")
-        print("2D X : {}".format(new_point_x))
-        print("2D Y : {}".format(new_point_y))
-        print("---------------")
         # -- Export translated GPS coordinates into 2D Cartesian --
         pitch_pos.append(new_point_x) # add new 2D cartesian X points to export
         pitch_pos.append(new_point_y) # add new 2D cartesian Y points to export

@@ -8,6 +8,7 @@ Its job is to act as an interface (interaction with the module) and provide meth
 # INCLUDE LIBRARIES
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib as matplt
 from mplsoccer import Pitch
 import configparser
 
@@ -29,6 +30,8 @@ class visualisation_plot_handler:
         self._create_gps_structure() # Pandas for GPS
         self._create_hr_structure() # Pandas for HR
         self._create_fitness_structure() # Pandas for Fitness Indicator
+        colormap = matplt.colormaps['Reds'] # extract matplotlib's red colormap for pie chart plots
+        self._red_colormap = [colormap(0.2), colormap(0.38), colormap(0.57), colormap(0.8), colormap(1.0)] # take different red color stages
 
     def _create_gps_structure(self): # create Pandas (Dataframe) for GPS metrics
         # FOR: inst. speed & pace pandas dataframe:
@@ -109,7 +112,8 @@ class visualisation_plot_handler:
         if len(self._gps_metrics.speed_zones) > 0: # only plot if not empty...
             PLOT_4 = self._speed_series.plot(ax=axes[1,1], kind='pie', title="Speed Zones (%)", \
                                             autopct="%.2f%%", labels=None,fontsize=10, \
-                                            pctdistance=1.25, explode=self.speed_explode_series)
+                                            pctdistance=1.25, explode=self.speed_explode_series, \
+                                            colors=self._red_colormap)
             PLOT_4.legend(["Walking Zone", "Jogging Zone", "Running Zone", "Sprinting Zone", \
                            "High-Sprint Zone"])
         # -- DISPLAY ALL PLOTS IN FIGURE --
@@ -134,7 +138,8 @@ class visualisation_plot_handler:
         if len(self._hr_metrics.intensity_dist) > 0: # only plot if not empty...
             PLOT_2 = self._hr_zones_series.plot(ax=axes[1], kind='pie', title="HR Zones (%)", \
                                             autopct="%.2f%%", labels=None,fontsize=10, \
-                                            pctdistance=0.5, explode=self.hr_explode_series)
+                                            pctdistance=0.5, explode=self.hr_explode_series, \
+                                            colors=self._red_colormap)
             PLOT_2.legend(["Zone 1", "Zone 2", "Zone 3", "Zone 4", "Zone 5"])
         # -- DISPLAY ALL PLOTS IN FIGURE --
         plt.show()
