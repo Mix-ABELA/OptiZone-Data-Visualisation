@@ -9,6 +9,7 @@ Its job is to act as an interface (interaction with the module) and provide meth
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib as matplt
+from matplotlib.colors import LinearSegmentedColormap
 from mplsoccer import Pitch
 import configparser
 
@@ -55,6 +56,10 @@ class visualisation_plot_handler:
                 self.speed_explode_series.append(explode_count)
                 explode_count += 0.07
         self._speed_series = pd.Series(speed_data_series, index=speed_index_series)
+        # FOR: pitch GPS positions dataframe used in heatmap plotting
+        positions_list = [self._gps_metrics.pitch_pos[0], self._gps_metrics.pitch_pos[1]]
+        self._df_pitch_pos = pd.DataFrame(positions_list).transpose() # create Dataframe & transpose axes
+        self._df_pitch_pos.columns = ['X', 'Y']
     
     def _create_hr_structure(self): # create Pandas (Dataframe) for HR metrics
         # FOR: heart rate pandas dataframe:
@@ -146,11 +151,22 @@ class visualisation_plot_handler:
     ### END: PLOTTING SECTION ###
 
     ### ROUTE PATH SECTION ###
-    def create_pitch(self): # create football pitch (105m x 68m) for route path visualisation
+    def create_pitch_positions(self): # create football pitch (105m x 68m) for route path visualisation
         pitch = Pitch(pitch_type='uefa', pitch_color='grass', line_color='white', stripe=True, \
-                      axis=True, label=True)
+                      axis=True, label=True, line_zorder=2)
         fig, ax = pitch.draw(figsize=(13,8)) # size -> (width, height)
         plt.title("Player's Route Path - Football Pitch (105 x 68 meters)")
+        scatter_positions = pitch.scatter(self._df_pitch_pos['X'], self._df_pitch_pos['Y'], c='red', ax=ax)
+        plt.show()
+    
+    def create_pitch_heatmap(self): # create football pitch (105m x 68m) for heatmap visualisation
+        pitch = Pitch(pitch_type='uefa', pitch_color='black', line_color='white', stripe=False, \
+                      axis=True, label=True, line_zorder=2)
+        fig, ax = pitch.draw(figsize=(13,8)) # size -> (width, height)
+        plt.title("Player's Position Heatmap - Football Pitch (105 x 68 meters)")
+        custom_colormap = LinearSegmentedColormap.from_list("custom cmap", ['black', 'red'], N=500)
+        pitch.kdeplot(self._df_pitch_pos['X'], self._df_pitch_pos['Y'], fill=True, levels=500, \
+                        cmap=custom_colormap, thresh=0, cut=4, zorder=1, ax=ax)
         plt.show()
     ### END: ROUTE PATH SECTION ###
 

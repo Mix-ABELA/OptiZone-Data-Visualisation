@@ -6,7 +6,7 @@ import os
 
 try:
     dataset_file_path = "../data_samples/"
-    csv_file_name = os.path.join(dataset_file_path, "GPS_Sample_downsampled_light.csv")
+    csv_file_name = os.path.join(dataset_file_path, "GPS_Sample.csv")
 
     # --- CREATE CSV HANDLER OBJECT INSTANCE & GET PROCESSED DATA LIST ---
     CSV_Handler = csv_handler_interface.csv_data_handler(csv_file_name)
@@ -49,9 +49,13 @@ try:
     Plotter = plot_interface.visualisation_plot_handler(Metrics_Handler.get_GPS_result_metrics(), \
                                                         Metrics_Handler.get_HR_result_metrics(), \
                                                         Metrics_Handler.get_Fitness_result_metrics())
+    # - SHOW plots for gps metrics -
     Plotter.show_GPS_plots()
+    # - SHOW plots for heart rate metrics -
     Plotter.show_HR_plots()
-    #Plotter.create_pitch()
+    # - SHOW athlete's pitch position & heatmap -
+    Plotter.create_pitch_positions()
+    Plotter.create_pitch_heatmap()
 
 except:
     print("found an error... stopping program")
