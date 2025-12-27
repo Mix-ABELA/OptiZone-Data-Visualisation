@@ -6,7 +6,7 @@ import os
 
 try:
     dataset_file_path = "../data_samples/"
-    csv_file_name = os.path.join(dataset_file_path, "GPS_Sample.csv")
+    csv_file_name = os.path.join(dataset_file_path, "GPS_Sample_downsampled_medium.csv")
 
     # --- CREATE CSV HANDLER OBJECT INSTANCE & GET PROCESSED DATA LIST ---
     CSV_Handler = csv_handler_interface.csv_data_handler(csv_file_name)

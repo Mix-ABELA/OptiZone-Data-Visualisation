@@ -39,6 +39,7 @@ if __name__ == '__main__':  # this part will only run when the script is called 
         ConfigHandler = config_params_handler(config_file_name)
         #print(type(int(ConfigHandler.get_specific_data("CSV DATA PROCESSING", "Min_Number_Satellites"))))
         print(ConfigHandler.get_specific_data("CSV DATA PROCESSING", "Min_Number_Satellites"))
+        print(ConfigHandler.get_specific_data("CSV DATA PROCESSING", "Dataset_File_Name"))
 
         # testing the data section output
         new_data_section = ConfigHandler.get_section_data("CSV DATA PROCESSING")
