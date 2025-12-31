@@ -5,9 +5,21 @@ from plot_handler import plot_interface
 import os
 
 try:
+    # -------------------------------------------------------------------------------------------
+    # --- DETERMINE DATASET FILE ---
     dataset_file_path = "../data_samples/"
-    csv_file_name = os.path.join(dataset_file_path, "GPS_Sample_downsampled_medium.csv")
+    csv_file_name = os.path.join(dataset_file_path, "GPS_Sample_downsampled_hard.csv")
 
+    # --- DETERMINE CONFIGURATION FILE ---
+    config_file_path = ""
+    config_file_name = os.path.join(config_file_path, "config_params.ini")
+
+    # --- LOAD USER PARAMETERS FROM CONFIGURATION FILE ---
+    Config_Handler = config_params_interface.config_params_handler(config_file_name)
+    config_user_settings = Config_Handler.load_config_file_data()
+    # -------------------------------------------------------------------------------------------
+
+    # -------------------------------------------------------------------------------------------
     # --- CREATE CSV HANDLER OBJECT INSTANCE & GET PROCESSED DATA LIST ---
     CSV_Handler = csv_handler_interface.csv_data_handler(csv_file_name)
     CSV_Handler.extract_data()
@@ -20,7 +32,9 @@ try:
     # Metrics_Handler.compute_GPS_metrics() # to compute GPS metrics only
     # Metrics_Handler.compute_HR_metrics() # to compute Hear Rate metrics only
     # Metrics_Handler.compute_Fitness_metrics() # to compute Efficiency & Fitness metrics only
+    # -------------------------------------------------------------------------------------------
 
+    # -------------------------------------------------------------------------------------------
     # --- PRINT COMPUTED METRICS RESULTS ---
     print("----------------------")
     # print("total distance = {}".format(Metrics_Handler.get_GPS_result_metrics().total_dist))
@@ -44,7 +58,9 @@ try:
     print("----------------------")
     # print("aerobic efficiency = {}".format(Metrics_Handler.get_Fitness_result_metrics().aerobic_eff))
     # print("cardiac cost = {}".format(Metrics_Handler.get_Fitness_result_metrics().cardiac_cost))
+    # -------------------------------------------------------------------------------------------
 
+    # -------------------------------------------------------------------------------------------
     # --- USE VISUALISATION PLOTTER TO LOOK AT THE COMPUTED METRICS ---
     Plotter = plot_interface.visualisation_plot_handler(Metrics_Handler.get_GPS_result_metrics(), \
                                                         Metrics_Handler.get_HR_result_metrics(), \
@@ -56,6 +72,7 @@ try:
     # - SHOW athlete's pitch position & heatmap -
     Plotter.create_pitch_positions()
     Plotter.create_pitch_heatmap()
+    # -------------------------------------------------------------------------------------------
 
 except:
     print("found an error... stopping program")

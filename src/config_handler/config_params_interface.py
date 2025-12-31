@@ -12,19 +12,25 @@ import configparser
 class config_params_handler:
 
     def __init__(self, config_file_path=""): # class constructor
-        self.handler = configparser.ConfigParser() # create the configparser instance
+        self._handler = configparser.ConfigParser() # create the configparser instance
         try:
-            self.handler.read(config_file_path) # read the config file provided
+            self._handler.read(config_file_path) # read the config file provided
         except:
             print("- Failed to load config file... TRY AGAIN!")
             exit(0)
         print("+ Config file handler created successfully!")
     
     def get_section_data(self, section_name=""): # provide specific section of data from list of parameters
-        return self.handler[section_name]
+        return self._handler[section_name]
     
     def get_specific_data(self, section_name="", param_name=""): # provide specific data from list of parameters
-        return self.handler[section_name][param_name]
+        return self._handler[section_name][param_name]
+    
+    def load_config_file_data(self): # provide all config data sections from config file
+        config_data = [] # create a list of configparser sections
+        for i in self._handler.sections():
+            config_data.append(self.get_section_data(i))
+        return config_data
 
 
 # INTERNAL CODE TESTING
@@ -37,14 +43,17 @@ if __name__ == '__main__':  # this part will only run when the script is called 
         config_file_name = os.path.join(file_path, "config_params.ini")
 
         ConfigHandler = config_params_handler(config_file_name)
-        #print(type(int(ConfigHandler.get_specific_data("CSV DATA PROCESSING", "Min_Number_Satellites"))))
-        print(ConfigHandler.get_specific_data("CSV DATA PROCESSING", "Min_Number_Satellites"))
-        print(ConfigHandler.get_specific_data("CSV DATA PROCESSING", "Dataset_File_Name"))
+        
+        # testing config section extraction
+        new_config_section = ConfigHandler.get_section_data("GENERAL REPORT SETTINGS")
+        # print(new_config_section["Dataset_File_Name"])
+        # testing config data extraction
+        new_config_data = ConfigHandler.get_specific_data("GENERAL REPORT SETTINGS", "show_GPS_metrics")
+        # print(new_config_data)
 
-        # testing the data section output
-        new_data_section = ConfigHandler.get_section_data("CSV DATA PROCESSING")
-        #print(type(int(new_data_section["Max_Number_Satellites"])))
-        print(new_data_section["Max_Number_Satellites"])
+        # testing config data file loading into project
+        load_test = ConfigHandler.load_config_file_data()
+        print(load_test[4]["Sprinting_speed_threshold"])
 
     finally:
         print("PROGRAM ENDED SUCCESSFULLY")
