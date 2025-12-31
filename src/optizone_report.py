@@ -1,3 +1,17 @@
+"""
+---- ---- ---- ---- ---- ---- ---- MAIN OPTIZONE PROJECT CODE ---- ---- ---- ---- ---- ---- ---- ---- ------ 
+> This is the main code that runs the OptiZone data visualisation project !
+> User settings can be modified by editing the configuration file "config_params.ini" in the same directory.
+> GitHub Repository link: https://github.com/Mix-ABELA/OptiZone-Data-Visualisation
+
+---- ---- ---- ---- ---- ---- ---- CREDITS & LICENSE ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -----
+> Code Author: Michel Abela
+> EPFL Semester Project: OptiZone Startup
+> Date: September -> December 2025
+> Contact: michel.abela@epfl.ch
+---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---
+"""
+
 from csv_handler import csv_handler_interface
 from config_handler import config_params_interface
 from metrics_handler import metrics_interface
