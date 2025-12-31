@@ -7,8 +7,6 @@ study of the provided dataset.
 
 # INCLUDE LIBRARIES
 import math
-from pyproj import Transformer
-import configparser
 
 # DEFINE USEFUL FUNCTIONS
 class workload_metrics_calculator:

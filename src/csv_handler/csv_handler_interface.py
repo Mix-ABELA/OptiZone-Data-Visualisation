@@ -8,7 +8,6 @@ and process data coming from a dataset (excel CSV file) + load into the main pyt
 # INCLUDE LIBRARIES
 from csv_handler import csv_extractor # internal module
 from csv_handler import csv_data_processor # internal module
-import configparser
 
 # DEFINE USEFUL FUNCTIONS
 class csv_data_handler:

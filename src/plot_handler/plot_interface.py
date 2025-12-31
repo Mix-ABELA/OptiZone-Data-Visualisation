@@ -11,7 +11,6 @@ import matplotlib.pyplot as plt
 import matplotlib as matplt
 from matplotlib.colors import LinearSegmentedColormap
 from mplsoccer import Pitch
-import configparser
 
 # DEFINE USEFUL FUNCTIONS
 class visualisation_plot_handler:
