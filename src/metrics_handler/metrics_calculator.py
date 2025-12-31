@@ -13,9 +13,10 @@ import configparser
 # DEFINE USEFUL FUNCTIONS
 class workload_metrics_calculator:
 
-    def __init__(self, dataset): # class constructor
+    def __init__(self, dataset, user_settings=[]): # class constructor
         try:
             self._dataset = dataset # load processed data (named tuple structure) into class object
+            self._user_settings = user_settings # load user settings parameters
             self._define_baseline_instances() # create required instances for metrics computation
         except:
             print("- Failed to create metrics calculator... TRY AGAIN!")
@@ -34,10 +35,13 @@ class workload_metrics_calculator:
         self.split_paces = [] # list of split pace (average pace per km) in min/km
         self.avg_hr = 0 # variable for average heart rate in BPM
         self.max_hr = 0 # variable for maximum recorded heart rate in BPM
-        self.resting_hr = 60 # variable to store athlete's resting hear rate in BPM
-        self.athlete_age = 23 # varibale to store athlete's age in years
+        self.resting_hr = int(self._user_settings[0]["Resting_HR"]) # variable to store athlete's resting hear rate in BPM
+        self.athlete_age = int(self._user_settings[0]["Athlete_Age"]) # varibale to store athlete's age in years
         self.distance_aggregation = [] # list for aggregated distance change in meters
-        self.pitch_corners = [(46.219117,6.082403), (46.219790,6.083261), (46.220172,6.082642), (46.219500,6.081783)]
+        self.pitch_corners = [(float(self._user_settings[1]["Lat_Bottom_Left"]),float(self._user_settings[1]["Lon_Bottom_Left"])),\
+                              (float(self._user_settings[1]["Lat_Bottom_Right"]),float(self._user_settings[1]["Lon_Bottom_Right"])),\
+                              (float(self._user_settings[1]["Lat_Top_Right"]),float(self._user_settings[1]["Lon_Top_Right"])),\
+                              (float(self._user_settings[1]["Lat_Top_Left"]),float(self._user_settings[1]["Lon_Top_Left"]))]
         # > list of tuples to store pitch corners (lat, lon) order: [D_L, D_R, U_R, U_L]
 
     ### BASIC MOVEMENT METRICS FUNCTIONS ###
@@ -149,7 +153,7 @@ class workload_metrics_calculator:
         return min_value
     
     def moving_time(self): # METRIC: determine the moving time of the activity
-        stopped_time_threshold = 0.9 # in m/s
+        stopped_time_threshold = float(self._user_settings[2]["Stopped_Moving_speed_threshold"]) # in m/s
         stopped_time = 0.0 # in min
         iteration = 0
         for element in self.inst_speed: # iterate through all elements
@@ -244,11 +248,11 @@ class workload_metrics_calculator:
         return lowest_pace
     
     def speed_zones(self): # METRIC: compute time spent in each speed zone & get the % overall time
-        walking_threshold = 1.94 # in m/s (0-7 km/h)
-        jogging_threshold = 3.89 # in m/s (7-14 km/h)
-        running_threshold = 5.50 # in m/s (14-19.8 km/h)
-        sprinting_threshold = 6.94 # in m/s (19.8-25 km/h)
-        intense_sprint_threshold = 6.94 # in m/s (>25 km/h)
+        walking_threshold = float(self._user_settings[2]["Walking_speed_threshold"]) # in m/s (0-7 km/h)
+        jogging_threshold = float(self._user_settings[2]["Jogging_speed_threshold"]) # in m/s (7-14 km/h)
+        running_threshold = float(self._user_settings[2]["Running_speed_threshold"]) # in m/s (14-19.8 km/h)
+        sprinting_threshold = float(self._user_settings[2]["Sprinting_speed_threshold"]) # in m/s (19.8-25 km/h)
+        intense_sprint_threshold = float(self._user_settings[2]["Sprinting_speed_threshold"]) # in m/s (>25 km/h)
         time_spent_zones = [0.0, 0.0, 0.0, 0.0, 0.0] # each element corresponding to a speed zone
         iteration = 0
         for element in self.inst_speed:

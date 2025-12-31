@@ -13,11 +13,11 @@ import configparser
 # DEFINE USEFUL FUNCTIONS
 class workload_metrics_handler:
 
-    def __init__(self, dataset): # class constructor
+    def __init__(self, dataset, user_settings=[]): # class constructor
         try:
             self._dataset = dataset # load processed data (named tuple structure) into class object
             self._create_results_structure() # create result metrics data structure
-            self._calculator = workload_metrics_calculator(self._dataset) # create metrics calculator instance
+            self._calculator = workload_metrics_calculator(self._dataset, user_settings) # create metrics calculator instance
         except:
             print("- Failed to create metrics handler... TRY AGAIN!")
             exit(0)

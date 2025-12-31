@@ -28,12 +28,13 @@ def initialise_processed_data(sorted_data):
                             sorted_data.Gyr_X_list, sorted_data.Gyr_Y_list, sorted_data.Gyr_Z_list)
     return processed_data
 
-def filter_data(sorted_data):
+def filter_data(sorted_data, usr_settings=[]):
     # process the data & identify the undesired rows to remove them
     processed_data = initialise_processed_data(sorted_data) # init the base data structure
     memory_flag_list = [] # list used to track the index of elements that need to be deleted
     for index in range(0, len(processed_data.QoS_list)): # iterate through all indexes of data
-        if (processed_data.QoS_list[index] < 150) or (processed_data.sat_list[index] < 10): # check if the GPS signal is very low and inaccurate
+        if (processed_data.QoS_list[index] < int(usr_settings["min_Quality_of_Signal"])) or \
+                (processed_data.sat_list[index] < int(usr_settings["min_Number_Satellites"])): # check if the GPS signal is very low and inaccurate
             memory_flag_list.append(index) # add the index number to the flag memory list 
     updated_processed_data = delete_flagged_data(memory_flag_list, processed_data) # delete the flagged elements
     final_processed_data = time_concatenation(updated_processed_data) # keep only the time series row that are not repetitive (except IMU & Gyro)

@@ -6,10 +6,6 @@ import os
 
 try:
     # -------------------------------------------------------------------------------------------
-    # --- DETERMINE DATASET FILE ---
-    dataset_file_path = "../data_samples/"
-    csv_file_name = os.path.join(dataset_file_path, "GPS_Sample_downsampled_hard.csv")
-
     # --- DETERMINE CONFIGURATION FILE ---
     config_file_path = ""
     config_file_name = os.path.join(config_file_path, "config_params.ini")
@@ -17,16 +13,21 @@ try:
     # --- LOAD USER PARAMETERS FROM CONFIGURATION FILE ---
     Config_Handler = config_params_interface.config_params_handler(config_file_name)
     config_user_settings = Config_Handler.load_config_file_data()
+
+    # --- DETERMINE DATASET FILE ---
+    dataset_file_path = "../data_samples/"
+    csv_file_name = os.path.join(dataset_file_path, config_user_settings[0]["Dataset_File_Name"])
     # -------------------------------------------------------------------------------------------
 
     # -------------------------------------------------------------------------------------------
     # --- CREATE CSV HANDLER OBJECT INSTANCE & GET PROCESSED DATA LIST ---
-    CSV_Handler = csv_handler_interface.csv_data_handler(csv_file_name)
+    CSV_Handler = csv_handler_interface.csv_data_handler(csv_file_name, config_user_settings[1])
     CSV_Handler.extract_data()
     csv_processed_data = CSV_Handler.get_processed_data()
 
     # --- CREATE WORKLOAD METRICS OBJECT INSTANCE & COMPUTE METRICS ---
-    Metrics_Handler = metrics_interface.workload_metrics_handler(csv_processed_data)
+    Metrics_Handler = metrics_interface.workload_metrics_handler(csv_processed_data,\
+                                [config_user_settings[2],config_user_settings[3],config_user_settings[4]])
     Metrics_Handler.compute_GPS_HR_Fitness_metrics() # compute GPS - Heart Rate - Fitness metrics
     # --- IF YOU WANT TO COMPUTE INDIVIDUAL METRICS -> USE ONE AT A TIME ONLY ! ---
     # Metrics_Handler.compute_GPS_metrics() # to compute GPS metrics only
@@ -36,28 +37,31 @@ try:
 
     # -------------------------------------------------------------------------------------------
     # --- PRINT COMPUTED METRICS RESULTS ---
-    print("----------------------")
-    # print("total distance = {}".format(Metrics_Handler.get_GPS_result_metrics().total_dist))
-    # print("total time = {}".format(Metrics_Handler.get_GPS_result_metrics().total_time))
-    # print("moving time = {}".format(Metrics_Handler.get_GPS_result_metrics().moving_time))
-    # print("split pace = {}".format(Metrics_Handler.get_GPS_result_metrics().split_pace))
-    # print("best segment = {}".format(Metrics_Handler.get_GPS_result_metrics().best_segment))
-    # print("speed zones = {}".format(Metrics_Handler.get_GPS_result_metrics().speed_zones))
-    # print("average speed = {}".format(Metrics_Handler.get_GPS_result_metrics().avg_speed))
-    # print("max speed = {}".format(Metrics_Handler.get_GPS_result_metrics().max_speed))
-    # print("average pace = {}".format(Metrics_Handler.get_GPS_result_metrics().avg_pace))
-    # print("max pace = {}".format(Metrics_Handler.get_GPS_result_metrics().max_pace))
-    # print("aggregated distance = {}".format(Metrics_Handler.get_GPS_result_metrics().dist_agg))
-    print("----------------------")
-    # print("average HR = {}".format(Metrics_Handler.get_HR_result_metrics().avg_hr))
-    # print("max HR = {}".format(Metrics_Handler.get_HR_result_metrics().max_hr))
-    # print("reserve HR = {}".format(Metrics_Handler.get_HR_result_metrics().hr_reserve))
-    # print("zones time HR = {}".format(Metrics_Handler.get_HR_result_metrics().hr_zones))
-    # print("intensity dist HR = {}".format(Metrics_Handler.get_HR_result_metrics().intensity_dist))
-    # print("training impulse = {}".format(Metrics_Handler.get_HR_result_metrics().trimp))
-    print("----------------------")
-    # print("aerobic efficiency = {}".format(Metrics_Handler.get_Fitness_result_metrics().aerobic_eff))
-    # print("cardiac cost = {}".format(Metrics_Handler.get_Fitness_result_metrics().cardiac_cost))
+    print("---------------------- GPS METRICS ----------------------")
+    if config_user_settings[0]["show_GPS_metrics"] == "YES":
+        print("Total Distance = {} Km".format(Metrics_Handler.get_GPS_result_metrics().total_dist))
+        print("Total Time = {} min".format(Metrics_Handler.get_GPS_result_metrics().total_time))
+        print("Moving Time = {} min".format(Metrics_Handler.get_GPS_result_metrics().moving_time))
+        print("Split Pace = {} (min/Km)".format(Metrics_Handler.get_GPS_result_metrics().split_pace))
+        print("Best Segment = {} min/Km".format(Metrics_Handler.get_GPS_result_metrics().best_segment))
+        print("Speed Zones = {} (% total time)".format(Metrics_Handler.get_GPS_result_metrics().speed_zones))
+        print("Average Speed = {} Km/h".format(Metrics_Handler.get_GPS_result_metrics().avg_speed))
+        print("Max Speed = {} Km/h".format(Metrics_Handler.get_GPS_result_metrics().max_speed))
+        print("Average Pace = {} min/Km".format(Metrics_Handler.get_GPS_result_metrics().avg_pace))
+        print("Max Pace = {} min/Km".format(Metrics_Handler.get_GPS_result_metrics().max_pace))
+    print("------------------- HEART RATE METRICS ------------------")
+    if config_user_settings[0]["show_HR_metrics"] == "YES":
+        print("Average HR = {} BPM".format(Metrics_Handler.get_HR_result_metrics().avg_hr))
+        print("Max HR = {} BPM".format(Metrics_Handler.get_HR_result_metrics().max_hr))
+        print("Reserve HR = {} BPM".format(Metrics_Handler.get_HR_result_metrics().hr_reserve))
+        print("Zones Time HR = {} (min)".format(Metrics_Handler.get_HR_result_metrics().hr_zones))
+        print("Intensity Distribution HR = {} (% total time)".format(Metrics_Handler.get_HR_result_metrics().intensity_dist))
+        print("Training Impulse = {} (TRIMP)".format(Metrics_Handler.get_HR_result_metrics().trimp))
+    print("-------------------- FTINESS METRICS --------------------")
+    if config_user_settings[0]["show_Fitness_metrics"] == "YES":
+        print("Aerobic Efficiency = {} (EF)".format(Metrics_Handler.get_Fitness_result_metrics().aerobic_eff))
+        print("Cardiac Cost = {} (EF)".format(Metrics_Handler.get_Fitness_result_metrics().cardiac_cost))
+    print("---------------------------------------------------------")
     # -------------------------------------------------------------------------------------------
 
     # -------------------------------------------------------------------------------------------
@@ -65,13 +69,17 @@ try:
     Plotter = plot_interface.visualisation_plot_handler(Metrics_Handler.get_GPS_result_metrics(), \
                                                         Metrics_Handler.get_HR_result_metrics(), \
                                                         Metrics_Handler.get_Fitness_result_metrics())
-    # - SHOW plots for gps metrics -
-    Plotter.show_GPS_plots()
-    # - SHOW plots for heart rate metrics -
-    Plotter.show_HR_plots()
+    # - SHOW plots for GPS metrics -
+    if config_user_settings[0]["show_GPS_metrics"] == "YES":
+        Plotter.show_GPS_plots()
+    # - SHOW plots for Heart Rate metrics -
+    if config_user_settings[0]["show_HR_metrics"] == "YES":
+        Plotter.show_HR_plots()
     # - SHOW athlete's pitch position & heatmap -
-    Plotter.create_pitch_positions()
-    Plotter.create_pitch_heatmap()
+    if config_user_settings[0]["show_Pitch_Positions"] == "YES":
+        Plotter.create_pitch_positions()
+    if config_user_settings[0]["show_Pitch_Heatmap"] == "YES":
+        Plotter.create_pitch_heatmap()
     # -------------------------------------------------------------------------------------------
 
 except:

@@ -13,9 +13,10 @@ import configparser
 # DEFINE USEFUL FUNCTIONS
 class csv_data_handler:
 
-    def __init__(self, csv_file_path=""): # class constructor
+    def __init__(self, csv_file_path="", user_settings=[]): # class constructor
         try:
             self._raw_data = csv_extractor.load_data(csv_file_path) # load data into extractor instance
+            self._user_settings = user_settings # load user settings
             self.processed_data = [] # create empty list to store processed data 
         except:
             print("- Failed to load dataset file... TRY AGAIN!")
@@ -24,7 +25,7 @@ class csv_data_handler:
     
     def extract_data(self): # extract dataset lists & process data values
         sorted_data_list = csv_extractor.sort_data(self._raw_data) # extract different lists from raw data
-        processed_data_list = csv_data_processor.filter_data(sorted_data_list) # process data ready for computation
+        processed_data_list = csv_data_processor.filter_data(sorted_data_list, self._user_settings) # process data ready for computation
         self.processed_data = processed_data_list # save processed data in class object
     
     def get_processed_data(self): # returns the processed data list
