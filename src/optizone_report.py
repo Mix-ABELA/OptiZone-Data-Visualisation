@@ -21,15 +21,20 @@ import os
 try:
     # -------------------------------------------------------------------------------------------
     # --- DETERMINE CONFIGURATION FILE ---
-    config_file_path = ""
-    config_file_name = os.path.join(config_file_path, "config_params.ini")
+    #current directory = os.getcwd()
+    current_directory = os.path.dirname(os.path.abspath(__file__))
+    config_file_name = os.path.join(current_directory, "config_params.ini")
 
     # --- LOAD USER PARAMETERS FROM CONFIGURATION FILE ---
     Config_Handler = config_params_interface.config_params_handler(config_file_name)
     config_user_settings = Config_Handler.load_config_file_data()
 
     # --- DETERMINE DATASET FILE ---
-    dataset_file_path = "../data_samples/"
+    # get back to parent directory
+    main_directory = os.path.dirname(current_directory)
+    # os.chdir(main_directory)
+    
+    dataset_file_path =  os.path.join(main_directory, "data_samples")
     csv_file_name = os.path.join(dataset_file_path, config_user_settings[0]["Dataset_File_Name"])
     # -------------------------------------------------------------------------------------------
 
@@ -96,7 +101,8 @@ try:
         Plotter.create_pitch_heatmap()
     # -------------------------------------------------------------------------------------------
 
-except:
+except Exception as e:
     print("found an error... stopping program")
+    print(e)
 finally:
     print("!-- PROGRAM ENDED SUCCESSFULLY --!")

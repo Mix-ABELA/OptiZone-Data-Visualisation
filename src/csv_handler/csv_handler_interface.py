@@ -23,9 +23,10 @@ class csv_data_handler:
         print("+ CSV handler created & loaded data from file successfully!")
     
     def extract_data(self): # extract dataset lists & process data values
-        sorted_data_list = csv_extractor.sort_data(self._raw_data) # extract different lists from raw data
-        processed_data_list = csv_data_processor.filter_data(sorted_data_list, self._user_settings) # process data ready for computation
-        self.processed_data = processed_data_list # save processed data in class object
+        sorted_data_list = csv_extractor.sort_data(self._raw_data, self._user_settings) # extract different lists from raw data
+        # to increse efficiency, filtering is now done during sorting phase        
+        # processed_data_list = csv_data_processor.filter_data(sorted_data_list, self._user_settings) # process data ready for computation
+        self.processed_data = sorted_data_list # save processed data in class object
     
     def get_processed_data(self): # returns the processed data list
         if self.processed_data == []: # check if list is empty (no computation made yet)
